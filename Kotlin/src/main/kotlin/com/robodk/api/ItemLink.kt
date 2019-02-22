@@ -1,6 +1,7 @@
 package com.robodk.api
 
 import com.robodk.api.model.*
+import org.jblas.DoubleMatrix
 import java.awt.Color
 import java.util.*
 
@@ -34,19 +35,19 @@ class ItemLink(
     override var name: String
         get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
         set(value) {}
-    override var pose: Mat
+    override var pose: DoubleMatrix
         get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
         set(value) {}
-    override var geometryPose: Mat
+    override var geometryPose: DoubleMatrix
         get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
         set(value) {}
-    override var poseTool: Mat
+    override var poseTool: DoubleMatrix
         get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
         set(value) {}
-    override var poseFrame: Mat
+    override var poseFrame: DoubleMatrix
         get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
         set(value) {}
-    override var poseAbs: Mat
+    override var poseAbs: DoubleMatrix
         get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
         set(value) {}
     override var color: Color
@@ -136,15 +137,15 @@ class ItemLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun addCurve(curvePoints: Mat, addToRef: Boolean, projectionType: ProjectionType): Item {
+    override fun addCurve(curvePoints: DoubleMatrix, addToRef: Boolean, projectionType: ProjectionType): Item {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun projectPoints(points: Mat, projectionType: ProjectionType): Mat {
+    override fun projectPoints(points: DoubleMatrix, projectionType: ProjectionType): DoubleMatrix {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getPoints(featureType: ObjectSelectionType, featureId: Int): Pair<String, Mat> {
+    override fun getPoints(featureType: ObjectSelectionType, featureId: Int): Pair<String, DoubleMatrix> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -176,7 +177,7 @@ class ItemLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun setFrame(frame: Mat) {
+    override fun setFrame(frame: DoubleMatrix) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -184,15 +185,15 @@ class ItemLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun setTool(tool: Mat) {
+    override fun setTool(tool: DoubleMatrix) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun addTool(toolPose: Mat, toolName: String): Item {
+    override fun addTool(toolPose: DoubleMatrix, toolName: String): Item {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun solveFK(joints: DoubleArray): Mat {
+    override fun solveFK(joints: DoubleArray): DoubleMatrix {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -200,11 +201,11 @@ class ItemLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun solveIK(pose: Mat, jointsApprox: DoubleArray?, tool: Mat?, reference: Mat?): DoubleArray {
+    override fun solveIK(pose: DoubleMatrix, jointsApprox: DoubleArray?, tool: DoubleMatrix?, reference: DoubleMatrix?): DoubleArray {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun solveIK_All(pose: Mat, tool: Mat?, reference: Mat?): Mat {
+    override fun solveIK_All(pose: DoubleMatrix, tool: DoubleMatrix?, reference: DoubleMatrix?): DoubleMatrix {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -224,7 +225,7 @@ class ItemLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun moveJ(target: Mat, blocking: Boolean) {
+    override fun moveJ(target: DoubleMatrix, blocking: Boolean) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -236,7 +237,7 @@ class ItemLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun moveL(target: Mat, blocking: Boolean) {
+    override fun moveL(target: DoubleMatrix, blocking: Boolean) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -248,7 +249,7 @@ class ItemLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun moveC(target1: Mat, target2: Mat, blocking: Boolean) {
+    override fun moveC(target1: DoubleMatrix, target2: DoubleMatrix, blocking: Boolean) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -278,7 +279,7 @@ class ItemLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun showSequence(sequence: Mat) {
+    override fun showSequence(sequence: DoubleMatrix) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -369,7 +370,7 @@ class ItemLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun instructionList(): Pair<Int, Mat> {
+    override fun instructionList(): Pair<Int, DoubleMatrix> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -393,7 +394,7 @@ class ItemLink(
         flags: ListJointsType,
         timeoutSec: Int,
         time_step: Double
-    ): Triple<Int, String, Mat> {
+    ): Triple<Int, String, DoubleMatrix> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

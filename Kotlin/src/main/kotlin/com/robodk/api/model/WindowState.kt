@@ -27,5 +27,5 @@ enum class WindowState(override val value: Int) : NumberedEnum<Int, WindowState>
     /** Show fullscreen window without the toolbar and without the menu */
     FULLSCREENCINEMA(6);
 
-    override val values = values().toList()
+    override val values get() = values().toList()
 }

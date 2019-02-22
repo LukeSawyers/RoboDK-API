@@ -1,6 +1,7 @@
 package com.robodk.api
 
 import com.robodk.api.model.*
+import org.jblas.DoubleMatrix
 import java.awt.Color
 import java.util.*
 
@@ -81,7 +82,7 @@ interface Item {
      *
      * @param pose 4x4 homogeneous matrix
      */
-    var pose: Mat
+    var pose: DoubleMatrix
 
     /**
      * The position (pose) the object geometry with respect to its own reference frame. This procedure works for
@@ -89,7 +90,7 @@ interface Item {
      *
      * @param pose 4x4 homogeneous matrix
      */
-    var geometryPose: Mat
+    var geometryPose: DoubleMatrix
 
     /**
      * Returns the tool pose of an item. If a robot is provided it will get the tool pose of the active tool held by
@@ -97,7 +98,7 @@ interface Item {
      *
      * @return 4x4 homogeneous matrix (pose)
      */
-    var poseTool: Mat
+    var poseTool: DoubleMatrix
 
     /**
      * The reference frame pose of an item. If a robot is provided it will get the tool pose of the active
@@ -105,7 +106,7 @@ interface Item {
      *
      * @return 4x4 homogeneous matrix (pose)
      */
-    var poseFrame: Mat
+    var poseFrame: DoubleMatrix
 
     /**
      * Sets the global position (pose) of an item. For example, the position of an object/frame/target with respect to
@@ -115,7 +116,7 @@ interface Item {
 
      * @param pose 4x4 homogeneous matrix (pose)
      */
-    var poseAbs: Mat
+    var poseAbs: DoubleMatrix
 
     /** The color of an object, tool or robot. */
     var color: Color
@@ -219,7 +220,7 @@ interface Item {
 
     /**
      * Sets the tool of a robot or a tool object (Tool Center Point, or TCP) to a frame position.
-     * To set a new pose position <seealso cref="SetPoseFrame(Mat)"/>
+     * To set a new pose position <seealso cref="SetPoseFrame(DoubleMatrix)"/>
      * If the item is a tool, it links the robot to the tool item.If tool is a pose, it updates the current robot TCP.
 
      * @param frameItem
@@ -228,7 +229,7 @@ interface Item {
 
     /**
      * Sets the tool of a robot or a tool object (Tool Center Point, or TCP). The tool pose can be either an item or a
-     * 4x4 Matrix.
+     * 4x4 DoubleMatrixrix.
      * If the item is a tool, it links the robot to the tool item.If tool is a pose, it updates the current robot TCP.
 
      * @param toolItem
@@ -301,7 +302,7 @@ interface Item {
      * @return returns the object where the curve was added or null if failed
      */
     fun addCurve(
-        curvePoints: Mat,
+        curvePoints: DoubleMatrix,
         addToRef: Boolean = false,
         projectionType: ProjectionType = ProjectionType.ALONG_NORMAL_RECALC
     ): Item
@@ -317,7 +318,7 @@ interface Item {
      *
      * @return projected points (empty matrix if failed)
      */
-    fun projectPoints(points: Mat, projectionType: ProjectionType = ProjectionType.ALONG_NORMAL_RECALC): Mat
+    fun projectPoints(points: DoubleMatrix, projectionType: ProjectionType = ProjectionType.ALONG_NORMAL_RECALC): DoubleMatrix
 
 
     /**
@@ -331,7 +332,7 @@ interface Item {
      * normal to the surface)
      * @return The name of the selected geometry (if applicable)
      */
-    fun getPoints(featureType: ObjectSelectionType, featureId: Int): Pair<String, Mat>
+    fun getPoints(featureType: ObjectSelectionType, featureId: Int): Pair<String, DoubleMatrix>
 
     /**
      * Update the robot milling path input and parameters. Parameter input can be an NC file (G-code or APT file) or
@@ -386,52 +387,52 @@ interface Item {
 
     /**
      * Obsolete: Use setPoseFrame instead.
-     * Sets the frame of a robot (user frame). The frame can be either an item or a 4x4 Matrix.
-     * If "frame" is an item, it links the robot to the frame item. If frame is a 4x4 Matrix, it updates the linked pose
+     * Sets the frame of a robot (user frame). The frame can be either an item or a 4x4 DoubleMatrixrix.
+     * If "frame" is an item, it links the robot to the frame item. If frame is a 4x4 DoubleMatrixrix, it updates the linked pose
      * of the robot frame.
 
-     * @param frame item/pose -> frame item or 4x4 Matrix (pose of the reference frame)
+     * @param frame item/pose -> frame item or 4x4 DoubleMatrixrix (pose of the reference frame)
      */
     fun setFrame(frame: Item)
 
     /**
      * Obsolete: Use setPoseFrame instead.
-     * Sets the frame of a robot (user frame). The frame can be either an item or a 4x4 Matrix.
-     * If "frame" is an item, it links the robot to the frame item. If frame is a 4x4 Matrix, it updates the linked pose
+     * Sets the frame of a robot (user frame). The frame can be either an item or a 4x4 DoubleMatrixrix.
+     * If "frame" is an item, it links the robot to the frame item. If frame is a 4x4 DoubleMatrixrix, it updates the linked pose
      * of the robot frame.
 
-     * @param frame item/pose -> frame item or 4x4 Matrix (pose of the reference frame)
+     * @param frame item/pose -> frame item or 4x4 DoubleMatrixrix (pose of the reference frame)
      */
-    fun setFrame(frame: Mat)
+    fun setFrame(frame: DoubleMatrix)
 
     /**
      * Obsolete: Use setPoseTool instead.
-     * Sets the tool pose of a robot. The tool pose can be either an item or a 4x4 Matrix.
-     * If "tool" is an item, it links the robot to the tool item. If tool is a 4x4 Matrix, it updates the linked pose of
+     * Sets the tool pose of a robot. The tool pose can be either an item or a 4x4 DoubleMatrixrix.
+     * If "tool" is an item, it links the robot to the tool item. If tool is a 4x4 DoubleMatrixrix, it updates the linked pose of
      * the robot tool.
 
-     * @param tool item/pose -> tool item or 4x4 Matrix (pose of the tool frame)
+     * @param tool item/pose -> tool item or 4x4 DoubleMatrixrix (pose of the tool frame)
      */
     fun setTool(tool: Item);
 
     /**
      * Obsolete: Use setPoseTool instead.
-     * Sets the tool pose of a robot. The tool pose can be either an item or a 4x4 Matrix.
-     * If "tool" is an item, it links the robot to the tool item. If tool is a 4x4 Matrix, it updates the linked pose of
+     * Sets the tool pose of a robot. The tool pose can be either an item or a 4x4 DoubleMatrixrix.
+     * If "tool" is an item, it links the robot to the tool item. If tool is a 4x4 DoubleMatrixrix, it updates the linked pose of
      * the robot tool.
 
-     * @param tool item/pose -> tool item or 4x4 Matrix (pose of the tool frame)
+     * @param tool item/pose -> tool item or 4x4 DoubleMatrixrix (pose of the tool frame)
      */
-    fun setTool(tool: Mat);
+    fun setTool(tool: DoubleMatrix);
 
     /**
-     * Adds an empty tool to the robot provided the tool pose (4x4 Matrix) and the tool name.
+     * Adds an empty tool to the robot provided the tool pose (4x4 DoubleMatrixrix) and the tool name.
 
      * @param toolPose
      * @param toolName
      * @return new item created
      */
-    fun addTool(toolPose: Mat, toolName: String = "New TCP"): Item
+    fun addTool(toolPose: DoubleMatrix, toolName: String = "New TCP"): Item
 
     /**
      * Computes the forward kinematics of the robot for the provided joints. The tool and the reference frame are not
@@ -440,7 +441,7 @@ interface Item {
      * @param joints
      * @return 4x4 homogeneous matrix: pose of the robot flange with respect to the robot base
      */
-    fun solveFK(joints: DoubleArray): Mat
+    fun solveFK(joints: DoubleArray): DoubleMatrix
 
     /**
      * Returns the robot configuration state for a set of robot joints.
@@ -462,7 +463,7 @@ interface Item {
      * Tip: use robot.PoseFrame() to retrieve the active robot reference frame.
      * @return array of joints
      */
-    fun solveIK(pose: Mat, jointsApprox: DoubleArray? = null, tool: Mat? = null, reference: Mat? = null): DoubleArray
+    fun solveIK(pose: DoubleMatrix, jointsApprox: DoubleArray? = null, tool: DoubleMatrix? = null, reference: DoubleMatrix? = null): DoubleArray
 
     /**
      * Computes the inverse kinematics for the specified robot and pose. The function returns all available joint
@@ -475,7 +476,7 @@ interface Item {
      * Tip: use robot.PoseFrame() to retrieve the active robot reference frame.
      * @return double x n x m -> joint list (2D matrix)
      */
-    fun solveIK_All(pose: Mat, tool: Mat? = null, reference: Mat? = null): Mat
+    fun solveIK_All(pose: DoubleMatrix, tool: DoubleMatrix? = null, reference: DoubleMatrix? = null): DoubleMatrix
 
     /**
      * Connect to a real robot using the robot driver.
@@ -520,7 +521,7 @@ interface Item {
      * @param blocking blocking -> True if we want the instruction to block until the robot finished the movement
      * (default=true)
      */
-    fun moveJ(target: Mat, blocking: Boolean = true)
+    fun moveJ(target: DoubleMatrix, blocking: Boolean = true)
 
     /**
      * Moves a robot to a specific target ("Move Linear" mode). By default, this function blocks until the robot
@@ -548,7 +549,7 @@ interface Item {
      * @param blocking blocking -> True if we want the instruction to block until the robot finished the movement
      * (default=true)
      */
-    fun moveL(target: Mat, blocking: Boolean = true)
+    fun moveL(target: DoubleMatrix, blocking: Boolean = true)
 
     /**
      * Moves a robot to a specific target ("Move Circular" mode). By default, this function blocks until the robot
@@ -581,7 +582,7 @@ interface Item {
      * @param blocking blocking -> True if we want the instruction to block until the robot finished the movement
      * (default=true)
      */
-    fun moveC(target1: Mat, target2: Mat, blocking: Boolean = true)
+    fun moveC(target1: DoubleMatrix, target2: DoubleMatrix, blocking: Boolean = true)
 
     /**
      * Checks if a joint movement is free of collision.
@@ -649,7 +650,7 @@ interface Item {
      * Displays a sequence of joints
      * @param sequence joint sequence as a 6xN matrix or instruction sequence as a 7xN matrix
      */
-    fun showSequence(sequence: Mat)
+    fun showSequence(sequence: DoubleMatrix)
 
 
     /** Stops a program or a robot */
@@ -811,7 +812,7 @@ interface Item {
      * @param instructions the matrix of instructions
      * @return Returns 0 if success
      */
-    fun instructionList(): Pair<Int, Mat>
+    fun instructionList(): Pair<Int, DoubleMatrix>
 
     /**
      * Returns a list of joints.
@@ -858,7 +859,7 @@ interface Item {
         flags: ListJointsType = ListJointsType.ANY,
         timeoutSec: Int = 3600,
         time_step: Double = 0.2
-    ): Triple<Int, String, Mat>
+    ): Triple<Int, String, DoubleMatrix>
 
     /** Disconnect from the RoboDK API. This flushes any pending program generation. */
     fun finish()

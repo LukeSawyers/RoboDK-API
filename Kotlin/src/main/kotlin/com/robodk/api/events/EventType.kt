@@ -5,7 +5,7 @@ import com.robodk.api.model.NumberedEnum
 /**
  * Script Execution Mode
  */
-enum class EventType : NumberedEnum<Int> {
+enum class EventType : NumberedEnum<Int, EventType> {
     NO_EVENT,
 
     /**
@@ -44,4 +44,5 @@ enum class EventType : NumberedEnum<Int> {
     SELECTION_3D_CHANGED;
 
     override val value get() = ordinal
+    override val values = EventType.values().toList()
 }

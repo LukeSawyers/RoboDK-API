@@ -35,5 +35,5 @@ enum class WindowFlags(override val value: Int) : NumberedEnum<Int, WindowFlags>
             )
     }
 
-    override val values = values().toList()
+    override val values get() = values().toList()
 }

@@ -6,17 +6,21 @@ import com.robodk.api.events.EventType
 import com.robodk.api.events.IRoboDkEventSource
 import com.robodk.api.exception.RdkException
 import com.robodk.api.model.*
+import mu.KotlinLogging
+import org.jblas.DoubleMatrix
 import java.awt.Color
 import java.io.Closeable
+import java.io.PrintWriter
+import java.net.ConnectException
 import java.net.Socket
 import java.nio.charset.Charset
 import java.time.Duration
 import java.util.*
-import java.util.logging.Level
-import java.util.logging.Logger
+import kotlin.properties.Delegates
 
 class RoboDkLink(
     var logging: Boolean = false,
+    var echo: Boolean = false,
     override var applicationDir: String = "",
     var safeMode: Boolean = true,
     var autoUpdate: Boolean = false,
@@ -29,15 +33,24 @@ class RoboDkLink(
 ) : RoboDk, Closeable {
 
     object Commands {
+        const val START = "CMD_START "
         const val GET_ITEM_ANY = "G_Item"
         const val GET_ITEM = "G_Item2"
     }
 
-    private var log = Logger.getGlobal().also {
-        it.level = if (logging) Level.ALL else Level.OFF
+    object Responses {
+        const val READY = "READY "
     }
 
-    private var socket: Socket? = null
+    private var log = KotlinLogging.logger { }
+
+    private var socketOutPrintWriter: PrintWriter? = null
+
+    private var socket: Socket? by Delegates.observable<Socket?>(null) { obs, oldVal, newVal ->
+        if (echo && oldVal != newVal && newVal != null) {
+            socketOutPrintWriter = PrintWriter(newVal.getOutputStream(), true)
+        }
+    }
 
     // <editor-fold desc="Closeable Implementation">
 
@@ -99,22 +112,38 @@ class RoboDkLink(
     }
 
     override fun connect(): Boolean {
+        if (connected) {
+            return true
+        }
+
         for (i in 0 until 2) {
             if (serverEndPort < serverStartPort) {
                 serverEndPort = serverStartPort
             }
             for (port in serverStartPort..serverEndPort) {
-                val socket = Socket(serverIpAddress, port)
+                val socket = try {
+                    Socket(serverIpAddress, port)
+                } catch (ex: ConnectException) {
+                    log.warn("Failed to connect to RoboDk on IP: $serverIpAddress, Port: $port")
+                    continue
+                }
+
                 val connected = socket.isConnected
                 if (connected) {
-                    log.info("Connected to roboDk onL Ip: $serverIpAddress, Port: $port")
-                    return connected
+                    log.info("Connected to RoboDk on IP: $serverIpAddress, Port: $port")
+                    this.socket = socket
+                    return if (verifyConnection()) {
+                        true
+                    } else {
+                        this.socket = null
+                        false
+                    }
                 } else {
                     socket.close()
                 }
             }
         }
-        log.warning("Could not connect to roboDk. Ip: $serverIpAddress, Port Start: $serverStartPort, Port End: $serverEndPort")
+        log.warn("Could not connect to RoboDk. IP: $serverIpAddress, Port Start: $serverStartPort, Port End: $serverEndPort")
         return false
     }
 
@@ -183,7 +212,7 @@ class RoboDkLink(
             sendInt(itemType.value)
         }
 
-        val item = recieveItem()
+        val item = receiveItem()
         checkStatus()
         return item
     }
@@ -224,12 +253,12 @@ class RoboDkLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun addShape(trianglePoints: Mat, addTo: Item?, shapeOverride: Boolean, color: Color?): Item {
+    override fun addShape(trianglePoints: DoubleMatrix, addTo: Item?, shapeOverride: Boolean, color: Color?): Item {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun addCurve(
-        curvePoints: Mat,
+        curvePoints: DoubleMatrix,
         referenceObject: Item?,
         addToRef: Boolean,
         projectionType: ProjectionType
@@ -238,7 +267,7 @@ class RoboDkLink(
     }
 
     override fun addPoints(
-        points: Mat,
+        points: DoubleMatrix,
         referenceObject: Item?,
         addToRef: Boolean,
         projectionType: ProjectionType
@@ -246,7 +275,11 @@ class RoboDkLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun projectPoints(points: Mat, objectProject: Item, projectionType: ProjectionType): Mat {
+    override fun projectPoints(
+        points: DoubleMatrix,
+        objectProject: Item,
+        projectionType: ProjectionType
+    ): DoubleMatrix {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -354,7 +387,7 @@ class RoboDkLink(
     }
 
     override fun calibrateTool(
-        posesJoints: Mat,
+        posesJoints: DoubleMatrix,
         format: EulerType,
         algorithm: TcpCalibrationType,
         robot: Item?
@@ -363,11 +396,11 @@ class RoboDkLink(
     }
 
     override fun calibrateReference(
-        joints: Mat,
+        joints: DoubleMatrix,
         method: ReferenceCalibrationType,
         useJoints: Boolean,
         robot: Item?
-    ): Mat {
+    ): DoubleMatrix {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -375,15 +408,20 @@ class RoboDkLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun setViewPose(pose: Mat) {
+    override fun setViewPose(pose: DoubleMatrix) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getViewPose(preset: ViewPoseType): Mat {
+    override fun getViewPose(preset: ViewPoseType): DoubleMatrix {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun setRobotParams(robot: Item, dhm: Array<DoubleArray>, poseBase: Mat, poseTool: Mat): Boolean {
+    override fun setRobotParams(
+        robot: Item,
+        dhm: Array<DoubleArray>,
+        poseBase: DoubleMatrix,
+        poseTool: DoubleMatrix
+    ): Boolean {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -396,8 +434,8 @@ class RoboDkLink(
         jointsSenses: List<Double>,
         jointsLimLow: List<Double>,
         jointsLimHigh: List<Double>,
-        baseFrame: Mat?,
-        tool: Mat?,
+        baseFrame: DoubleMatrix?,
+        tool: DoubleMatrix?,
         name: String,
         robot: Item?
     ): Item {
@@ -456,6 +494,14 @@ class RoboDkLink(
         }
     }
 
+    private fun verifyConnection(): Boolean {
+        sendLine(Commands.START)
+        val startParameter = "${if (safeMode) "1" else "0"} ${if (autoUpdate) "1" else "0"} "
+        sendLine(startParameter)
+        val response = receiveLine()
+        return response == Responses.READY
+    }
+
     /**
      * Checks the status of the connection.
      */
@@ -466,18 +512,19 @@ class RoboDkLink(
     // <editor-fold desc="Send Methods">
 
     private fun sendInt(number: Int) {
-        val sendData = byteArrayOf(
-            (number shr 24).toByte(),
-            (number shr 16).toByte(),
-            (number shr 8).toByte(),
-            number.toByte()
-        )
+        val sendData = number.toBytes()
+        if (echo) {
+            log.info("SendInt: $sendData")
+        }
         sendData(sendData)
     }
 
     private fun sendLine(line: String) {
         val sendLine = line.replace('\n', ' ').replace('\r', ' ')
             .toByteArray(Charset.defaultCharset())
+        if (echo) {
+            log.info("SendLine: $line")
+        }
         sendData(sendLine)
     }
 
@@ -485,7 +532,7 @@ class RoboDkLink(
         try {
             socket!!.getOutputStream().write(data)
         } catch (ex: Exception) {
-            throw RdkException("Failed to send data: $data")
+            throw RdkException("Failed to send data: $data -> $ex")
         }
     }
 
@@ -493,17 +540,29 @@ class RoboDkLink(
 
     // <editor-fold desc="Receive Methods">
 
-    //Receives an item pointer
-    private fun recieveItem(): Item? {
-
-        val buffer1 = ByteArray(8)
-        val buffer2 = ByteArray(4)
-        val read1 = socket!!.getInputStream().readNBytes(buffer1, 0, buffer1.size)
-        val read2 = socket!!.getInputStream().readNBytes(buffer2, 0, buffer1.size)
-
-        if (read1 != buffer1.size || read2 != buffer2.size) {
-            return null
+    private fun receiveLine(): String {
+        var line = ""
+        while (true) {
+            val buffer = socket!!.getInputStream().readBytes()
+            if(buffer.isEmpty()) {
+                break
+            }
+            for(byte in buffer) {
+                if (byte.toChar() != '\n') {
+                    line += buffer[0].toChar()
+                } else {
+                    break
+                }
+            }
         }
+        return line
+    }
+
+    // Receives an item pointer
+    private fun receiveItem(): Item? {
+
+        val buffer1 = socket!!.getInputStream().readBytes()
+        val buffer2 = socket!!.getInputStream().readBytes()
 
         buffer1.reverse()
         buffer2.reverse()

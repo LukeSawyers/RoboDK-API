@@ -29,8 +29,8 @@ fun ByteArray.toInt(): Int {
         throw IllegalArgumentException("Need 8 bytes to convert an Int")
     }
 
-    return (this[0].toLong() shl 24) +
-            (this[1].toLong() shl 16) +
-            (this[2].toLong() shl 8) +
-            this[3].toLong()
+    return (this[0].toInt() shl 24) +
+            (this[1].toInt() shl 16) +
+            (this[2].toInt() shl 8) +
+            this[3].toInt()
 }

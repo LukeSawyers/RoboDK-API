@@ -37,5 +37,5 @@ enum class InteractiveType: NumberedEnum<Int, InteractiveType> {
 
     override val value: Int get() = ordinal
 
-    override val values = values().toList()
+    override val values get() = values().toList()
 }

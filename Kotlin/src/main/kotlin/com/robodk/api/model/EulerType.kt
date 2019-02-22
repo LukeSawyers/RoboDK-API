@@ -27,5 +27,5 @@ enum class EulerType(override val value: Int) : NumberedEnum<Int, EulerType> {
     /** ABB Rapid */
     EULER_QUATERNION(6);
 
-    override val values = values().toList()
+    override val values get() = values().toList()
 }

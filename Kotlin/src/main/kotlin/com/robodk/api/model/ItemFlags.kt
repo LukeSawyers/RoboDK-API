@@ -26,5 +26,5 @@ enum class ItemFlags : NumberedEnum<Int, ItemFlags> {
     }
 
     override val value get() = if(ordinal > 0) 1 shl ordinal -1 else 0
-    override val values = values().toList()
+    override val values get() = values().toList()
 }

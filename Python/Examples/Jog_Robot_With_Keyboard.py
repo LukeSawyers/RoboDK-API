@@ -24,36 +24,9 @@ print('Note: This works on console mode only, you must run the PY file separatel
 # define the move increment
 move_speed = 10
 
-from msvcrt import getch
-while True:
-    key = (ord(getch()))
-    move_direction = [0,0,0]
-    # print(key)
-    if key == 75:
-        print('arrow left (Y-)')
-        move_direction = [0,-1,0]
-    elif key == 77:
-        print('arrow right (Y+)')
-        move_direction = [0,1,0]
-    elif key == 72:
-        print('arrow up (X-)')
-        move_direction = [-1,0,0]
-    elif key == 80:
-        print('arrow down (X+)')
-        move_direction = [1,0,0]
-    elif key == 113:
-        print('Q (Z+)')
-        move_direction = [0,0,1]
-    elif key == 97:
-        print('A (Z-)')
-        move_direction = [0,0,-1]
-
-    # make sure that a movement direction is specified
-    if norm(move_direction) <= 0:
-        continue
-
+def move_robot(move):
     # calculate the movement in mm according to the movement speed
-    xyz_move = mult3(move_direction, move_speed)
+    xyz_move = mult3(move, move_speed)
 
     # get the robot joints
     robot_joints = robot.Joints()
@@ -65,24 +38,101 @@ while True:
     robot_config = robot.JointsConfig(robot_joints)
 
     # calculate the new robot position
-    new_robot_position = transl(xyz_move)*robot_position
+    new_robot_position = transl(xyz_move) * robot_position
 
     # calculate the new robot joints
     new_robot_joints = robot.SolveIK(new_robot_position)
     if len(new_robot_joints.tolist()) < 6:
         print("No robot solution!! The new position is too far, out of reach or close to a singularity")
-        continue
+        return False
 
     # calculate the robot configuration for the new joints
     new_robot_config = robot.JointsConfig(new_robot_joints)
 
-    if robot_config[0] != new_robot_config[0] or robot_config[1] != new_robot_config[1] or robot_config[2] != new_robot_config[2]:
+    if robot_config[0] != new_robot_config[0] or robot_config[1] != new_robot_config[1] or robot_config[2] != \
+            new_robot_config[2]:
         print("Warning!! Robot configuration changed!! This will lead to unextected movements!")
         print(robot_config)
         print(new_robot_config)
 
     # move the robot joints to the new position
     robot.MoveJ(new_robot_joints)
-    #robot.MoveL(new_robot_joints)
+    # robot.MoveL(new_robot_joints)
+
+    return True
+
+def print_help():
+    print('Commands:')
+    print('\t D: Increment Y')
+    print('\t A: Decrement Y')
+    print('\t S: Increment X')
+    print('\t W: Decrement X')
+    print('\t Q: Increment Z')
+    print('\t E: Decrement Z')
+    print('\t H: Print these commands again')
+
+print_help()
+
+while True:
+    cmd = input()
+    move_direction = [0, 0, 0]
+    # print(key)
+    if cmd == 'A':
+        print('arrow left (Y-)')
+        move_direction = [0, -1, 0]
+    elif cmd == 'D':
+        print('arrow right (Y+)')
+        move_direction = [0, 1, 0]
+    elif cmd == 'W':
+        print('arrow up (X-)')
+        move_direction = [-1, 0, 0]
+    elif cmd == 'S':
+        print('arrow down (X+)')
+        move_direction = [1, 0, 0]
+    elif cmd == 'Q':
+        print('Q (Z+)')
+        move_direction = [0, 0, 1]
+    elif cmd == 'E':
+        print('E (Z-)')
+        move_direction = [0, 0, -1]
+    elif cmd == 'H':
+        print_help()
+
+    # make sure that a movement direction is specified
+    if norm(move_direction) <= 0:
+        continue
+
+    move_robot(move_direction)
+
+if False:
+    from msvcrt import getch
+    while True:
+        key = (ord(getch()))
+        move_direction = [0,0,0]
+        # print(key)
+        if key == 75:
+            print('arrow left (Y-)')
+            move_direction = [0,-1,0]
+        elif key == 77:
+            print('arrow right (Y+)')
+            move_direction = [0,1,0]
+        elif key == 72:
+            print('arrow up (X-)')
+            move_direction = [-1,0,0]
+        elif key == 80:
+            print('arrow down (X+)')
+            move_direction = [1,0,0]
+        elif key == 113:
+            print('Q (Z+)')
+            move_direction = [0,0,1]
+        elif key == 97:
+            print('A (Z-)')
+            move_direction = [0,0,-1]
+
+        # make sure that a movement direction is specified
+        if norm(move_direction) <= 0:
+            continue
+
+        move_robot(move_direction)
     
 

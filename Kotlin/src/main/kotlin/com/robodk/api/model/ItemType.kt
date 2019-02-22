@@ -19,5 +19,5 @@ enum class ItemType(override val value: Int) : NumberedEnum<Int, ItemType> {
     CALIB_PROJECT(13),
     VALID_ISO_9283(14);
 
-    override val values = values().toList()
+    override val values get() = ItemType.values().toList()
 }

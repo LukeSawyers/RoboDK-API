@@ -10,5 +10,5 @@ enum class ProgramRunType: NumberedEnum<Int, ProgramRunType> {
     COMMENT;      // Add a comment in the code
 
     override val value get() = ordinal
-    override val values = values().toList()
+    override val values get() = values().toList()
 }

@@ -36,5 +36,5 @@ enum class ErrorPathType(override val value: Int) : NumberedEnum<Int, ErrorPathT
      */
     COLLISION(0x20); // 0b100000
 
-    override val values = values().toList()
+    override val values get() = values().toList()
 }

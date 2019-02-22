@@ -9,5 +9,5 @@ enum class ReferenceCalibrationType : NumberedEnum<Int, ReferenceCalibrationType
     TURN_TABLE; // Calibrate turntable
 
     override val value: Int get() = ordinal
-    override val values = values().toList()
+    override val values get() = values().toList()
 }

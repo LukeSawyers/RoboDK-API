@@ -41,5 +41,5 @@ enum class DisplayRefType(override val value: Int) : NumberedEnum<Int, DisplayRe
     /** Display the plane translation along YZ plane */
     PYZ(0x100); /*0b100000000*/
 
-    override val values = values().toList()
+    override val values get() = values().toList()
 }

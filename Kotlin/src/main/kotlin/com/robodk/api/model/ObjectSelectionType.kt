@@ -10,5 +10,5 @@ enum class ObjectSelectionType : NumberedEnum<Int, ObjectSelectionType> {
     POINT;
 
     override val value get() = ordinal
-    override val values = values().toList()
+    override val values get() = values().toList()
 }

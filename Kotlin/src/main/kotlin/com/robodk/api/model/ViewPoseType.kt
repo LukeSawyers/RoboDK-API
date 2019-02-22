@@ -28,5 +28,5 @@ enum class ViewPoseType : NumberedEnum<Int, ViewPoseType> {
     FIT_ALL;
 
     override val value: Int get() = ordinal
-    override val values = values().toList()
+    override val values get() = values().toList()
 }
