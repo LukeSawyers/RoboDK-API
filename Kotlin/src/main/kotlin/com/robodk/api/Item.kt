@@ -9,9 +9,6 @@ interface Item {
 
     val itemId: Long
 
-    /** @return The RoboDK link Robolink(). */
-    val rdk: RoboDkLink
-
     /** @return the type of an item (robot, object, target, reference frame, ...) */
     val itemType: ItemType
 

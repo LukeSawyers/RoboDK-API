@@ -1,36 +1,35 @@
 package com.robodk.api
 
 import java.lang.IllegalArgumentException
+import java.nio.ByteBuffer
 
-fun Int.toBytes(): ByteArray = byteArrayOf(
-    (this shr 24).toByte(),
-    (this shr 16).toByte(),
-    (this shr 8).toByte(),
-    this.toByte()
-)
+fun Int.toBytes(): ByteArray = ByteArray(4).also { ByteBuffer.wrap(it).putInt(this) }
 
-fun ByteArray.toLong(): Long {
-    if (this.size != 8) {
-        throw IllegalArgumentException("Need 8 bytes to convert a Long")
-    }
+fun Long.toBytes(): ByteArray = ByteArray(8).also { ByteBuffer.wrap(it).putLong(this) }
 
-    return (this[0].toLong() shl 56) +
-            (this[1].toLong() shl 48) +
-            (this[2].toLong() shl 40) +
-            (this[3].toLong() shl 32) +
-            (this[4].toLong() shl 24) +
-            (this[5].toLong() shl 16) +
-            (this[6].toLong() shl 8) +
-            this[7].toLong()
-}
+fun Double.toBytes(): ByteArray = ByteArray(8).also { ByteBuffer.wrap(it).putDouble(this) }
 
 fun ByteArray.toInt(): Int {
     if (this.size != 4) {
         throw IllegalArgumentException("Need 8 bytes to convert an Int")
     }
 
-    return (this[0].toInt() shl 24) +
-            (this[1].toInt() shl 16) +
-            (this[2].toInt() shl 8) +
-            this[3].toInt()
+    return ByteBuffer.wrap(this).int
 }
+
+fun ByteArray.toLong(): Long {
+    if (this.size != 8) {
+        throw IllegalArgumentException("Need 8 bytes to convert a Long")
+    }
+
+    return ByteBuffer.wrap(this).long
+}
+
+fun ByteArray.toDouble(): Double {
+    if (this.size != 8) {
+        throw IllegalArgumentException("Need 8 bytes to convert a Long")
+    }
+
+    return ByteBuffer.wrap(this).double
+}
+

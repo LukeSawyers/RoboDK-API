@@ -11,16 +11,7 @@ import java.util.*
 
 interface RoboDk {
 
-    val lastStatusMessage: String // holds any warnings for the last call
-
     val applicationDir: String
-
-    /**
-     * Checks if the RoboDK Link is connected.
-     * @returns
-     * True if connected False otherwise
-     */
-    val connected: Boolean
 
     /**
      * Returns the number of pairs of objects that are currently in a collision state.
@@ -65,12 +56,6 @@ interface RoboDk {
     /** The list of items selected (it can be one or more items) */
     val selectedItems: List<Item>
 
-    /**
-     * Allows to install a function which can intercept all interface methods.
-     * Used for Aspect oriented programming (e.g. Add logging to an Interface).
-     */
-    var itemInterceptFunction: (Item) -> Item
-
     /** the active station (project currently visible) */
     var activeStation: Item
 
@@ -94,21 +79,6 @@ interface RoboDk {
      * @returns New RoboDK Link
      */
     fun newLink(): RoboDk
-
-    /**
-     * Establish a connection with RoboDK.
-     * If RoboDK is not running it will attempt to start RoboDK from the default installation path.
-     * (otherwise APPLICATION_DIR must be set properly).
-     * @returns If the connection succeeds it returns True, otherwise it returns False.
-     */
-    fun connect(): Boolean
-
-    /**
-     * Stops the communication with RoboDK.
-     * If setRunMode is set to MakeRobotProgram for offline programming,
-     * any programs pending will be generated.
-     */
-    fun disconnect()
 
     /**
      * Start the event communication channel. Use WaitForEvent to wait for a new event or use EventsLoop as an example

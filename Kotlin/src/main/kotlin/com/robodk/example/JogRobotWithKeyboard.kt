@@ -1,9 +1,7 @@
 package com.robodk.example
 
-import com.robodk.api.Item
-import com.robodk.api.RoboDkLink
+import com.robodk.api.*
 import com.robodk.api.model.ItemType
-import com.robodk.api.toTranslationMatrix
 import mu.KotlinLogging
 import org.jblas.DoubleMatrix
 import java.util.Scanner
@@ -11,7 +9,7 @@ import java.util.Scanner
 fun main() {
     val log = KotlinLogging.logger { }
 
-    val robot = RoboDkLink(echo = true).let {
+    val robot = RoboDkLink(SocketLink(echo = true)).let {
         it.connect()
         it.getItemByName("", ItemType.ROBOT)!!
     }

@@ -6,15 +6,13 @@ import java.awt.Color
 import java.util.*
 
 class ItemLink(
-    val roboDkLink: RoboDkLink,
+    val link: Link,
     override val itemId: Long = 0,
     override val itemType: ItemType = ItemType.ANY
 ) : Item {
 
-    override val rdk: RoboDkLink
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-    override val valid: Boolean
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+    override val valid = itemId != 0L
+
     override val visible: Boolean
         get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
     override val children: List<Item>
@@ -32,9 +30,23 @@ class ItemLink(
     override var parent: Item
         get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
         set(value) {}
+
     override var name: String
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-        set(value) {}
+        get() {
+            link.checkConnection()
+            link.sendLine(RdkApi.Commands.Get.NAME)
+            link.sendItem(this)
+            val (success, _name) = link.receiveLine()
+            link.checkStatus()
+            return _name
+        }
+        set(value) {
+            link.checkConnection()
+            link.sendLine(RdkApi.Commands.Set.NAME)
+            link.sendLine(value)
+            link.checkStatus()
+        }
+
     override var pose: DoubleMatrix
         get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
         set(value) {}
@@ -53,9 +65,17 @@ class ItemLink(
     override var color: Color
         get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
         set(value) {}
+
     override var joints: DoubleArray
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-        set(value) {}
+        get() {
+            link.checkConnection()
+            link.sendLine(RdkApi.Commands.Get.THETAS)
+            link.sendItem(this)
+            TODO()
+        }
+        set(value) {
+
+        }
 
     override fun clone(connectionLink: RoboDk): Item {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -201,7 +221,12 @@ class ItemLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun solveIK(pose: DoubleMatrix, jointsApprox: DoubleArray?, tool: DoubleMatrix?, reference: DoubleMatrix?): DoubleArray {
+    override fun solveIK(
+        pose: DoubleMatrix,
+        jointsApprox: DoubleArray?,
+        tool: DoubleMatrix?,
+        reference: DoubleMatrix?
+    ): DoubleArray {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -401,4 +426,6 @@ class ItemLink(
     override fun finish() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
+
+    override fun toString() = "ItemLink: ID: $itemId Type: $itemType"
 }
