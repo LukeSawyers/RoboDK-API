@@ -1,5 +1,7 @@
 package com.robodk.api
 
+import org.apache.commons.math3.linear.RealMatrix
+
 interface Link {
 
     /**
@@ -13,34 +15,38 @@ interface Link {
 
     val connected: Boolean
 
+    var receiveTimeout: Int
+
     /**
      * Establish a connection with RoboDK.
      * If RoboDK is not running it will attempt to start RoboDK from the default installation path.
      * (otherwise APPLICATION_DIR must be set properly).
      * @returns If the connection succeeds it returns True, otherwise it returns False.
      */
-    fun connect() : Boolean
+    fun connect(): Boolean
 
     /**
      * Stops the communication with RoboDK.
      * If setRunMode is set to MakeRobotProgram for offline programming,
      * any programs pending will be generated.
      */
-    fun disconnect()
+    fun disconnect(): Link
 
-    fun checkConnection()
+    fun checkConnection(): Link
 
     fun verifyConnection(): Boolean
 
-    fun checkStatus()
+    fun checkStatus(): Link
 
-    fun sendInt(number: Int)
+    fun sendInt(number: Int): Link
 
-    fun sendLine(line: String)
+    fun sendLine(line: String): Link
 
-    fun sendItem(item: Item)
+    fun sendItem(item: Item): Link
 
-    fun sendArray(array: DoubleArray)
+    fun sendArray(array: DoubleArray): Link
+
+    fun sendPose(pose: RealMatrix): Link
 
     fun receiveInt(): Pair<Boolean, Int>
 
@@ -48,7 +54,30 @@ interface Link {
 
     fun receiveLine(): Pair<Boolean, String>
 
-    fun receiveItem(): Item?
+    fun receiveItem(): Pair<Boolean, Item?>
 
     fun receiveArray(): Pair<Boolean, DoubleArray>
+
+    fun receivePose(): Pair<Boolean, RealMatrix>
+
+    fun moveX(
+        target: Item,
+        itemRobot: Item,
+        moveType: Int,
+        blocking: Boolean = true
+    ) : Link
+
+    fun moveX(
+        joints: DoubleArray,
+        itemRobot: Item,
+        moveType: Int,
+        blocking: Boolean = true
+    ) : Link
+
+    fun moveX(
+        matTarget: RealMatrix,
+        itemRobot: Item,
+        moveType: Int,
+        blocking: Boolean = true
+    ) : Link
 }

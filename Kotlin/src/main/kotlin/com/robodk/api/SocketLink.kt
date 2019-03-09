@@ -3,16 +3,16 @@ package com.robodk.api
 import com.robodk.api.exception.RdkException
 import com.robodk.api.model.ItemType
 import com.robodk.api.model.fromValue
-import mu.KotlinLogging
+import org.apache.commons.math3.linear.RealMatrix
 import java.io.*
 import java.net.ConnectException
 import java.net.Socket
 import java.net.SocketTimeoutException
 import java.time.Duration
+import java.util.logging.Logger
 import kotlin.properties.Delegates
 
 class SocketLink(
-    var timeoutMillis: Int = 100,
     var safeMode: Boolean = true,
     var autoUpdate: Boolean = false,
     var echo: Boolean = false,
@@ -20,8 +20,18 @@ class SocketLink(
     var serverIpAddress: String = "localhost",
     var serverStartPort: Int = 20500,
     var serverEndPort: Int = 20500,
-    var socketTimeout: Duration = Duration.ofSeconds(10)
+    private var timeoutMillis: Int = 100
 ) : Link {
+
+    override var receiveTimeout: Int
+        get() = socket?.soTimeout ?: timeoutMillis
+        set(value) {
+            socket?.soTimeout = value
+            if(socket != null) {
+                socket!!.soTimeout = value
+            }
+            timeoutMillis = value
+        }
 
     override var itemInterceptFunction: (Item) -> Item = { it }
 
@@ -29,7 +39,7 @@ class SocketLink(
 
     override val connected get() = socket?.isConnected ?: false
 
-    private var log = KotlinLogging.logger { }
+    private var log = Logger.getLogger(this::class.java.name)
 
     private var dataIn: DataInputStream? = null
     private var dataOut: DataOutputStream? = null
@@ -61,7 +71,7 @@ class SocketLink(
                 val socket = try {
                     Socket(serverIpAddress, port)
                 } catch (ex: ConnectException) {
-                    log.warn("Failed to connect to RoboDk on IP: $serverIpAddress, Port: $port")
+                    log.warning("Failed to connect to RoboDk on IP: $serverIpAddress, Port: $port")
                     continue
                 }
 
@@ -80,19 +90,23 @@ class SocketLink(
                 }
             }
         }
-        log.warn("Could not connect to RoboDk. IP: $serverIpAddress, Port Start: $serverStartPort, Port End: $serverEndPort")
+        log.warning("Could not connect to RoboDk. IP: $serverIpAddress, Port Start: $serverStartPort, Port End: $serverEndPort")
         return false
     }
 
-    override fun disconnect() = socket?.close() ?: Unit
+    override fun disconnect(): Link {
+        socket?.close()
+        return this
+    }
 
     /// <summary>
     ///     If we are not connected it will attempt a connection, if it fails, it will throw an error
     /// </summary>
-    override fun checkConnection() {
+    override fun checkConnection(): Link {
         if (!connected && !connect()) {
             throw RdkException("Can't connect to RoboDK API")
         }
+        return this
     }
 
     override fun verifyConnection(): Boolean {
@@ -106,10 +120,10 @@ class SocketLink(
     /**
      * Checks the status of the connection.
      */
-    override fun checkStatus() {
+    override fun checkStatus(): Link {
         val (success, status) = receiveInt()
         if (!success) {
-            return
+            return this
         }
         _lastStatusMessage = ""
         when (status) {
@@ -144,26 +158,29 @@ class SocketLink(
                 throw RdkException(lastStatusMessage)
             }
         }
+        return this
     }
 
 
-    override fun sendInt(number: Int) {
+    override fun sendInt(number: Int): Link {
         val sendData = number.toBytes()
         sendData(sendData)
         if (echo) {
             log.info("SendInt: $number")
         }
+        return this
     }
 
-    override fun sendLine(line: String) {
+    override fun sendLine(line: String): Link {
         outWriter!!.append(line).append('\n')
         outWriter!!.flush()
         if (echo) {
             log.info("SendLine: $line")
         }
+        return this
     }
 
-    private fun sendData(data: ByteArray) {
+    private fun sendData(data: ByteArray): Link {
         try {
             with(dataOut!!) {
                 write(data)
@@ -172,25 +189,43 @@ class SocketLink(
         } catch (ex: Exception) {
             throw RdkException("Failed to send data: $data -> $ex")
         }
+        return this
     }
 
-    override fun sendItem(item: Item) {
-        val idBytes = item.itemId.toBytes()
-        sendData(idBytes)
+    override fun sendItem(item: Item) = _sendItem(item)
+
+    override fun sendArray(array: DoubleArray): Link {
+        val size = array.size
+        sendInt(size)
+        sendData(ByteArray(8 * size).also {
+            for (i in 0 until size) {
+                System.arraycopy(array[i].toBytes(), 0, it, i * 8, 8)
+            }
+        })
         if (echo) {
-            log.info("SendItem: $item")
+            log.info("SendArray: Size: ${array.size} - ${array.contentToString()}")
         }
+        return this
     }
 
-    override fun sendArray(array: DoubleArray) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun sendPose(pose: RealMatrix): Link {
+        if (!pose.isHomogenous) {
+            throw RdkException("Matrix not Homogenous $pose")
+        }
+        // suppress the echo from sending the array
+        val isEcho = echo
+        echo = false
+        sendArray(pose.toDoubleArray())
+        echo = isEcho
+        if (echo) {
+            log.info("SendPose: $pose")
+        }
+        return this
     }
 
     override fun receiveInt(): Pair<Boolean, Int> {
         return try {
-            val buffer = ByteArray(4)
-            val read = dataIn!!.read(buffer)
-            val success = read == buffer.size
+            val (success, buffer) = receiveData(4)
             val value = buffer.toInt()
             if (echo) {
                 log.info("ReceiveInt: ${if (success) "Success: $value" else "Fail"}")
@@ -203,9 +238,7 @@ class SocketLink(
 
     override fun receiveLong(): Pair<Boolean, Long> {
         return try {
-            val buffer = ByteArray(8)
-            val read = dataIn!!.read(buffer)
-            val success = read == buffer.size
+            val (success, buffer) = receiveData(8)
             val value = buffer.toLong()
             if (echo) {
                 log.info("ReceiveLong: ${if (success) "Success: $value" else "Fail"}")
@@ -229,31 +262,31 @@ class SocketLink(
     }
 
     // Receives an item pointer
-    override fun receiveItem(): Item? {
+    override fun receiveItem(): Pair<Boolean, Item?> {
         val (itemIdRead, itemId) = receiveLong()
         val (itemTypeRead, typeNum) = receiveInt()
         if (!itemIdRead || !itemTypeRead) {
-            return null
+            return false to null
         }
 
         val type = ItemType.ANY.fromValue(typeNum)
         val item = ItemLink(this, itemId, type)
         log.info("Received item: $item")
-        return itemInterceptFunction(item)
+        return true to itemInterceptFunction(item)
     }
 
     override fun receiveArray(): Pair<Boolean, DoubleArray> {
         val (countSuccess, count) = receiveInt()
 
-        if(!countSuccess) {
+        if (!countSuccess) {
             return Pair(false, doubleArrayOf())
         }
 
         val arr = DoubleArray(count) { 0.0 }
 
-        for(i in 0 until count) {
+        for (i in 0 until count) {
             val (doubleSuccess, double) = receiveDouble()
-            if(!doubleSuccess) {
+            if (!doubleSuccess) {
                 return Pair(false, doubleArrayOf())
             }
             arr[i] = double
@@ -262,11 +295,75 @@ class SocketLink(
         return Pair(true, arr)
     }
 
+    override fun receivePose(): Pair<Boolean, RealMatrix> {
+        val pose = matrixOf(4, 4)
+        return try {
+            val (success, buffer) = receiveData(16 * 8)
+            if (!success) {
+                throw RdkException("Invalid pose sent")
+            }
+            for (col in 0 until pose.columnDimension) {
+                for (row in 0 until pose.rowDimension) {
+                    val index = row + col * 8
+                    pose.setEntry(row, col, buffer.copyOfRange(index, index + 8).toDouble())
+                }
+            }
+            true
+        } catch (ex: SocketTimeoutException) {
+            false
+        } to pose
+    }
+
+    override fun moveX(target: Item, itemRobot: Item, moveType: Int, blocking: Boolean) =
+        moveXWith(itemRobot, moveType, blocking) {
+            sendInt(3)
+            sendArray(doubleArrayOf())
+            sendItem(target)
+        }
+
+    override fun moveX(joints: DoubleArray, itemRobot: Item, moveType: Int, blocking: Boolean) =
+        moveXWith(itemRobot, moveType, blocking) {
+            sendInt(1)
+            sendArray(joints)
+            _sendItem(null)
+        }
+
+
+    override fun moveX(matTarget: RealMatrix, itemRobot: Item, moveType: Int, blocking: Boolean) =
+        moveXWith(itemRobot, moveType, blocking) {
+            if (!matTarget.isHomogenous) {
+                throw RdkException("Invalid target type")
+            }
+            sendInt(2)
+            sendArray(matTarget.toDoubleArray())
+            _sendItem(null)
+        }
+
+    private fun moveXWith(itemRobot: Item, moveType: Int, blocking: Boolean, block: () -> Unit): Link {
+        itemRobot.waitMove()
+        sendLine(RdkCommand.MOVE_X)
+        sendInt(moveType)
+        block()
+        sendItem(itemRobot)
+        checkStatus()
+        if (blocking) {
+            itemRobot.waitMove()
+        }
+        return this
+    }
+
+    private fun _sendItem(item: Item?): Link {
+        val idBytes = (item?.itemId ?: 0).toBytes()
+        sendData(idBytes)
+        if (echo) {
+            log.info("SendItem: $item")
+        }
+        return this
+    }
+
     private fun receiveDouble(): Pair<Boolean, Double> {
         return try {
-            val buffer = ByteArray(8)
-            val read = dataIn!!.read(buffer)
-            val success = read == buffer.size
+            val (success, buffer) = receiveData(8)
             val value = buffer.toLong()
             if (echo) {
                 log.info("ReceiveLong: ${if (success) "Success: $value" else "Fail"}")
@@ -275,5 +372,10 @@ class SocketLink(
         } catch (ex: SocketTimeoutException) {
             Pair(false, 0.0)
         }
+    }
+
+    private fun receiveData(size: Int): Pair<Boolean, ByteArray> {
+        val byteArray = ByteArray(size)
+        return (dataIn!!.read(byteArray) == size) to byteArray
     }
 }

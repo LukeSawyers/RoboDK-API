@@ -1,6 +1,6 @@
 package com.robodk.api.model
 
-import com.robodk.api.Mat
+import org.apache.commons.math3.linear.RealMatrix
 
 class ProgramInstruction (
 
@@ -12,6 +12,6 @@ class ProgramInstruction (
 
     var moveType : MoveType = MoveType.Linear,
     var isJointTarget : Boolean = false,
-    var target : Mat,
+    var target : RealMatrix,
     var joints : DoubleArray
 )

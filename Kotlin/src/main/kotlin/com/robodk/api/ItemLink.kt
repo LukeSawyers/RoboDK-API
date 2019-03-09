@@ -1,7 +1,7 @@
 package com.robodk.api
 
 import com.robodk.api.model.*
-import org.jblas.DoubleMatrix
+import org.apache.commons.math3.linear.RealMatrix
 import java.awt.Color
 import java.util.*
 
@@ -32,34 +32,34 @@ class ItemLink(
         set(value) {}
 
     override var name: String
-        get() {
-            link.checkConnection()
-            link.sendLine(RdkApi.Commands.Get.NAME)
-            link.sendItem(this)
-            val (success, _name) = link.receiveLine()
-            link.checkStatus()
-            return _name
-        }
-        set(value) {
-            link.checkConnection()
-            link.sendLine(RdkApi.Commands.Set.NAME)
-            link.sendLine(value)
-            link.checkStatus()
+        get() = link.session {
+            it.sendLine(RdkGet.NAME)
+                .sendItem(this)
+                .receiveLine()
+        }.second
+        set(value) = link.session {
+            it.sendLine(RdkSet.NAME)
+                .sendLine(value)
         }
 
-    override var pose: DoubleMatrix
+
+    override var itemFlags: EnumSet<ItemFlags>
         get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
         set(value) {}
-    override var geometryPose: DoubleMatrix
+
+    override var pose: RealMatrix
         get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
         set(value) {}
-    override var poseTool: DoubleMatrix
+    override var geometryPose: RealMatrix
         get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
         set(value) {}
-    override var poseFrame: DoubleMatrix
+    override var poseTool: RealMatrix
         get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
         set(value) {}
-    override var poseAbs: DoubleMatrix
+    override var poseFrame: RealMatrix
+        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        set(value) {}
+    override var poseAbs: RealMatrix
         get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
         set(value) {}
     override var color: Color
@@ -67,25 +67,20 @@ class ItemLink(
         set(value) {}
 
     override var joints: DoubleArray
-        get() {
-            link.checkConnection()
-            link.sendLine(RdkApi.Commands.Get.THETAS)
-            link.sendItem(this)
-            TODO()
+        get() = link.session {
+            it.sendLine(RdkGet.THETAS)
+                .sendItem(this)
+                .receiveArray()
+        }.second
+        set(value) = link.session {
+            it.sendLine(RdkSet.THETAS)
+                .sendArray(value)
+                .sendItem(this)
+                .checkStatus()
         }
-        set(value) {
 
-        }
 
     override fun clone(connectionLink: RoboDk): Item {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun setItemFlags(itemFlags: EnumSet<ItemFlags>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun getItemFlags(): EnumSet<ItemFlags> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -157,15 +152,15 @@ class ItemLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun addCurve(curvePoints: DoubleMatrix, addToRef: Boolean, projectionType: ProjectionType): Item {
+    override fun addCurve(curvePoints: RealMatrix, addToRef: Boolean, projectionType: ProjectionType): Item {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun projectPoints(points: DoubleMatrix, projectionType: ProjectionType): DoubleMatrix {
+    override fun projectPoints(points: RealMatrix, projectionType: ProjectionType): RealMatrix {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getPoints(featureType: ObjectSelectionType, featureId: Int): Pair<String, DoubleMatrix> {
+    override fun getPoints(featureType: ObjectSelectionType, featureId: Int): Pair<String, RealMatrix> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -197,7 +192,7 @@ class ItemLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun setFrame(frame: DoubleMatrix) {
+    override fun setFrame(frame: RealMatrix) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -205,32 +200,57 @@ class ItemLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun setTool(tool: DoubleMatrix) {
+    override fun setTool(tool: RealMatrix) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun addTool(toolPose: DoubleMatrix, toolName: String): Item {
+    override fun addTool(toolPose: RealMatrix, toolName: String): Item {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun solveFK(joints: DoubleArray): DoubleMatrix {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun solveFK(joints: DoubleArray) = link.session {
+        it.sendLine(RdkGet.FK)
+            .sendArray(joints)
+            .sendItem(this)
+            .receivePose()
+    }.second
 
-    override fun jointsConfig(joints: DoubleArray): DoubleArray {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun jointsConfig(joints: DoubleArray) = link.session {
+        it.sendLine(RdkGet.THETAS_CONFIG)
+            .sendArray(joints)
+            .sendItem(this)
+            .receiveArray()
+    }.second
+
 
     override fun solveIK(
-        pose: DoubleMatrix,
+        pose: RealMatrix,
         jointsApprox: DoubleArray?,
-        tool: DoubleMatrix?,
-        reference: DoubleMatrix?
+        tool: RealMatrix?,
+        reference: RealMatrix?
     ): DoubleArray {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        var sendPose = pose
+        if (tool != null) {
+            sendPose = sendPose.multiply(tool.inverse)
+        }
+        if (reference != null) {
+            sendPose = reference.multiply(sendPose)
+        }
+
+        return link.session {
+            if (jointsApprox == null) {
+                it.sendLine(RdkGet.IK)
+                    .sendPose(sendPose)
+            } else {
+                it.sendLine(RdkGet.IK_JOINTS)
+                    .sendPose(pose)
+                    .sendArray(jointsApprox)
+            }.sendItem(this)
+                .receiveArray().second
+        }
     }
 
-    override fun solveIK_All(pose: DoubleMatrix, tool: DoubleMatrix?, reference: DoubleMatrix?): DoubleMatrix {
+    override fun solveIK_All(pose: RealMatrix, tool: RealMatrix?, reference: RealMatrix?): RealMatrix {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -242,16 +262,20 @@ class ItemLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun moveJ(itemtarget: Item, blocking: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun moveJ(itemTarget: Item, blocking: Boolean) {
+        if (itemTarget.itemType == ItemType.PROGRAM) {
+
+        } else {
+            link.moveX(itemTarget, this, 1, blocking)
+        }
     }
 
     override fun moveJ(joints: DoubleArray, blocking: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        link.moveX(joints, this, 1, blocking)
     }
 
-    override fun moveJ(target: DoubleMatrix, blocking: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun moveJ(target: RealMatrix, blocking: Boolean) {
+        link.moveX(target, this, 1, blocking)
     }
 
     override fun moveL(itemTarget: Item, blocking: Boolean) {
@@ -262,7 +286,7 @@ class ItemLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun moveL(target: DoubleMatrix, blocking: Boolean) {
+    override fun moveL(target: RealMatrix, blocking: Boolean) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -274,7 +298,7 @@ class ItemLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun moveC(target1: DoubleMatrix, target2: DoubleMatrix, blocking: Boolean) {
+    override fun moveC(target1: RealMatrix, target2: RealMatrix, blocking: Boolean) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -304,7 +328,7 @@ class ItemLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun showSequence(sequence: DoubleMatrix) {
+    override fun showSequence(sequence: RealMatrix) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -313,7 +337,14 @@ class ItemLink(
     }
 
     override fun waitMove(timeoutSec: Double) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        link.session {
+            it.sendLine(RdkCommand.WAIT_MOVE)
+                .sendItem(this)
+        }
+        val timeout = link.receiveTimeout
+        link.receiveTimeout = (timeoutSec * 1000.0).toInt()
+        link.checkStatus() // this will cause it to wait
+        link.receiveTimeout = timeout
     }
 
     override fun makeProgram(filename: String, runMode: RunMode): Boolean {
@@ -395,7 +426,7 @@ class ItemLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun instructionList(): Pair<Int, DoubleMatrix> {
+    override fun instructionList(): Pair<Int, RealMatrix> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -419,7 +450,7 @@ class ItemLink(
         flags: ListJointsType,
         timeoutSec: Int,
         time_step: Double
-    ): Triple<Int, String, DoubleMatrix> {
+    ): Triple<Int, String, RealMatrix> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -428,4 +459,11 @@ class ItemLink(
     }
 
     override fun toString() = "ItemLink: ID: $itemId Type: $itemType"
+
+    private fun <T> Link.session(block: (Link) -> T): T {
+        link.checkConnection()
+        val result = block(link)
+        link.checkStatus()
+        return result
+    }
 }

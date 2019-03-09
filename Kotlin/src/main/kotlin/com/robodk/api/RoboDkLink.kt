@@ -5,12 +5,12 @@ import com.robodk.api.collision.CollisionPair
 import com.robodk.api.events.EventType
 import com.robodk.api.events.IRoboDkEventSource
 import com.robodk.api.model.*
-import mu.KotlinLogging
-import org.jblas.DoubleMatrix
+import org.apache.commons.math3.linear.RealMatrix
 import java.awt.Color
-import java.io.*
+import java.io.Closeable
 import java.time.Duration
 import java.util.*
+import java.util.logging.Logger
 
 class RoboDkLink(
     val link: Link,
@@ -26,7 +26,7 @@ class RoboDkLink(
     var roboDkBuild: Int = 0
 ) : RoboDk, Link by link, Closeable {
 
-    private var log = KotlinLogging.logger { }
+    private var log = Logger.getLogger(this::class.java.name)
 
     // <editor-fold desc="Closeable Implementation">
 
@@ -146,7 +146,7 @@ class RoboDkLink(
             sendInt(itemType.value)
         }
 
-        val item = receiveItem()
+        val (_, item) = receiveItem()
         checkStatus()
         return item
     }
@@ -187,12 +187,12 @@ class RoboDkLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun addShape(trianglePoints: DoubleMatrix, addTo: Item?, shapeOverride: Boolean, color: Color?): Item {
+    override fun addShape(trianglePoints: RealMatrix, addTo: Item?, shapeOverride: Boolean, color: Color?): Item {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun addCurve(
-        curvePoints: DoubleMatrix,
+        curvePoints: RealMatrix,
         referenceObject: Item?,
         addToRef: Boolean,
         projectionType: ProjectionType
@@ -201,7 +201,7 @@ class RoboDkLink(
     }
 
     override fun addPoints(
-        points: DoubleMatrix,
+        points: RealMatrix,
         referenceObject: Item?,
         addToRef: Boolean,
         projectionType: ProjectionType
@@ -210,10 +210,10 @@ class RoboDkLink(
     }
 
     override fun projectPoints(
-        points: DoubleMatrix,
+        points: RealMatrix,
         objectProject: Item,
         projectionType: ProjectionType
-    ): DoubleMatrix {
+    ): RealMatrix {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -321,7 +321,7 @@ class RoboDkLink(
     }
 
     override fun calibrateTool(
-        posesJoints: DoubleMatrix,
+        posesJoints: RealMatrix,
         format: EulerType,
         algorithm: TcpCalibrationType,
         robot: Item?
@@ -330,11 +330,11 @@ class RoboDkLink(
     }
 
     override fun calibrateReference(
-        joints: DoubleMatrix,
+        joints: RealMatrix,
         method: ReferenceCalibrationType,
         useJoints: Boolean,
         robot: Item?
-    ): DoubleMatrix {
+    ): RealMatrix {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -342,19 +342,19 @@ class RoboDkLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun setViewPose(pose: DoubleMatrix) {
+    override fun setViewPose(pose: RealMatrix) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getViewPose(preset: ViewPoseType): DoubleMatrix {
+    override fun getViewPose(preset: ViewPoseType): RealMatrix {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun setRobotParams(
         robot: Item,
         dhm: Array<DoubleArray>,
-        poseBase: DoubleMatrix,
-        poseTool: DoubleMatrix
+        poseBase: RealMatrix,
+        poseTool: RealMatrix
     ): Boolean {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -368,8 +368,8 @@ class RoboDkLink(
         jointsSenses: List<Double>,
         jointsLimLow: List<Double>,
         jointsLimHigh: List<Double>,
-        baseFrame: DoubleMatrix?,
-        tool: DoubleMatrix?,
+        baseFrame: RealMatrix?,
+        tool: RealMatrix?,
         name: String,
         robot: Item?
     ): Item {

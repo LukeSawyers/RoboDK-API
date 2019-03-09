@@ -1,13 +1,13 @@
-package com.robodk.example
+package com.robodk.api.example
 
 import com.robodk.api.*
 import com.robodk.api.model.ItemType
-import mu.KotlinLogging
-import org.jblas.DoubleMatrix
-import java.util.Scanner
+import org.apache.commons.math3.linear.RealMatrix
+import java.util.*
+import java.util.logging.Logger
 
 fun main() {
-    val log = KotlinLogging.logger { }
+    val log = Logger.getAnonymousLogger()
 
     val robot = RoboDkLink(SocketLink(echo = true)).let {
         it.connect()
@@ -50,12 +50,12 @@ fun main() {
 
         val next = scanner.next()
         val direction = when (next) {
-            "D" -> DoubleMatrix(3, 1, 0.0, 1.0, 0.0)
-            "A" -> DoubleMatrix(3, 1, 0.0, -1.0, 0.0)
-            "S" -> DoubleMatrix(3, 1, 1.0, 0.0, 0.0)
-            "W" -> DoubleMatrix(3, 1, -1.0, 0.0, 0.0)
-            "Q" -> DoubleMatrix(3, 1, 0.0, 0.0, 1.0)
-            "E" -> DoubleMatrix(3, 1, 0.0, 0.0, -1.0)
+            "D" -> matrixOf(3, 1, 0.0, 1.0, 0.0)
+            "A" -> matrixOf(3, 1, 0.0, -1.0, 0.0)
+            "S" -> matrixOf(3, 1, 1.0, 0.0, 0.0)
+            "W" -> matrixOf(3, 1, -1.0, 0.0, 0.0)
+            "Q" -> matrixOf(3, 1, 0.0, 0.0, 1.0)
+            "E" -> matrixOf(3, 1, 0.0, 0.0, -1.0)
             "H" -> {
                 printCommands()
                 null
@@ -63,29 +63,29 @@ fun main() {
             else -> null
         } ?: continue
 
-        val move = direction.mul(moveSpeed)
+        val move = direction.scalarMultiply(moveSpeed)
         robot.translateRobot(move)
     }
 }
 
-fun Item.translateRobot(move: DoubleMatrix, blocking: Boolean = true): Boolean {
-    val log = KotlinLogging.logger { }
+fun Item.translateRobot(move: RealMatrix, blocking: Boolean = true): Boolean {
+    val log = Logger.getAnonymousLogger()
     val robotJoints = joints
     val robotPos = solveFK(robotJoints)
     val robotConfig = jointsConfig(robotJoints)
-    val newRobotPos = move.toTranslationMatrix().mul(robotPos)
+    val newRobotPos = move.toTranslationMatrix().multiply(robotPos)
     val newRobotJoints = solveIK(newRobotPos)
     if (newRobotJoints.size < 6) {
-        log.warn("No Robot Solution! The new position is too far, out of reach, or too close to a singularity")
+        log.warning("No Robot Solution! The new position is too far, out of reach, or too close to a singularity")
         return false
     }
 
     val newRobotConfig = jointsConfig(newRobotJoints)
     if (!robotConfig.contentEquals(newRobotConfig)) {
-        log.warn(with(StringBuilder()) {
+        log.warning(with(StringBuilder()) {
             appendln("Robot configuration changed. This will lead to unexpected movements")
-            appendln("Original Config: $robotConfig")
-            appendln("New Config: $newRobotConfig")
+            appendln("Original Config: ${robotConfig.contentToString()}")
+            appendln("New Config: ${newRobotConfig.contentToString()}")
             toString()
         })
     }

@@ -5,7 +5,7 @@ import com.robodk.api.collision.CollisionPair
 import com.robodk.api.events.EventType
 import com.robodk.api.events.IRoboDkEventSource
 import com.robodk.api.model.*
-import org.jblas.DoubleMatrix
+import org.apache.commons.math3.linear.RealMatrix
 import java.awt.Color
 import java.util.*
 
@@ -259,7 +259,7 @@ interface RoboDk {
      * @param color Color of the added shape
      * @returns added object/shape (use item.Valid() to check if item is valid.)
      */
-    fun addShape(trianglePoints: DoubleMatrix, addTo: Item? = null, shapeOverride: Boolean = false, color: Color? = null): Item
+    fun addShape(trianglePoints: RealMatrix, addTo: Item? = null, shapeOverride: Boolean = false, color: Color? = null): Item
 
     /**
      * Adds a curve provided point coordinates.
@@ -278,7 +278,7 @@ interface RoboDk {
      * @returns added object/curve (use item.Valid() to check if item is valid.)
      */
     fun addCurve(
-        curvePoints: DoubleMatrix,
+        curvePoints: RealMatrix,
         referenceObject: Item? = null,
         addToRef: Boolean = false,
         projectionType: ProjectionType = ProjectionType.ALONG_NORMAL_RECALC
@@ -293,7 +293,7 @@ interface RoboDk {
      * @returns added object/shape (0 if failed)
      */
     fun addPoints(
-        points: DoubleMatrix,
+        points: RealMatrix,
         referenceObject: Item? = null,
         addToRef: Boolean = false,
         projectionType: ProjectionType = ProjectionType.ALONG_NORMAL_RECALC
@@ -314,10 +314,10 @@ interface RoboDk {
      *
      */
     fun projectPoints(
-        points: DoubleMatrix,
+        points: RealMatrix,
         objectProject: Item,
         projectionType: ProjectionType = ProjectionType.ALONG_NORMAL_RECALC
-    ): DoubleMatrix
+    ): RealMatrix
 
     /** Closes the current station without suggesting to save. */
     fun closeStation()
@@ -539,7 +539,7 @@ interface RoboDk {
      * @returns (TCP as [x, y, z] - calculated TCP, stats[mean, standard deviation, max] - Output error stats summary)
      */
     fun calibrateTool(
-        posesJoints: DoubleMatrix,
+        posesJoints: RealMatrix,
         format: EulerType = EulerType.EULER_RX_RY_RZ,
         algorithm: TcpCalibrationType = TcpCalibrationType.CALIBRATE_TCP_BY_POINT,
         robot: Item? = null
@@ -555,11 +555,11 @@ interface RoboDk {
      * @returns TODO: Document return value.
      */
     fun calibrateReference(
-        joints: DoubleMatrix,
+        joints: RealMatrix,
         method: ReferenceCalibrationType = ReferenceCalibrationType.FRAME_3P_P1_ON_X,
         useJoints: Boolean = false,
         robot: Item? = null
-    ): DoubleMatrix
+    ): RealMatrix
 
 
     /**
@@ -586,17 +586,17 @@ interface RoboDk {
      * Set the pose of the wold reference frame with respect to the view (camera/screen).
      * @param pose view pose frame.
      */
-    fun setViewPose(pose: DoubleMatrix)
+    fun setViewPose(pose: RealMatrix)
 
     /**
      * Get the pose of the wold reference frame with respect to the view (camera/screen)
      * @param preset Optionally specify a ViewPoseType to retrieve the pose for a specific view
      * @returns Returns the current view pose.
      */
-    fun getViewPose(preset: ViewPoseType = ViewPoseType.ACTIVE_VIEW): DoubleMatrix
+    fun getViewPose(preset: ViewPoseType = ViewPoseType.ACTIVE_VIEW): RealMatrix
 
     /** Sets the nominal robot parameters. */
-    fun setRobotParams(robot: Item, dhm: Array<DoubleArray>, poseBase: DoubleMatrix, poseTool: DoubleMatrix): Boolean
+    fun setRobotParams(robot: Item, dhm: Array<DoubleArray>, poseBase: RealMatrix, poseTool: RealMatrix): Boolean
 
     /**
      * Create a new robot or mechanism.
@@ -622,8 +622,8 @@ interface RoboDk {
         jointsSenses: List<Double>,
         jointsLimLow: List<Double>,
         jointsLimHigh: List<Double>,
-        baseFrame: DoubleMatrix? = null,
-        tool: DoubleMatrix? = null,
+        baseFrame: RealMatrix? = null,
+        tool: RealMatrix? = null,
         name: String = "New robot",
         robot: Item? = null
     ): Item
