@@ -11,7 +11,7 @@ fun Double.toBytes(): ByteArray = ByteArray(8).also { ByteBuffer.wrap(it).putDou
 
 fun ByteArray.toInt(): Int {
     if (this.size != 4) {
-        throw IllegalArgumentException("Need 8 bytes to convert an Int")
+        throw IllegalArgumentException("Need 4 bytes to convert an Int")
     }
 
     return ByteBuffer.wrap(this).int

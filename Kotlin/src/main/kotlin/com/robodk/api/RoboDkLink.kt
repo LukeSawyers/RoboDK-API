@@ -10,6 +10,7 @@ import java.awt.Color
 import java.io.Closeable
 import java.time.Duration
 import java.util.*
+import java.util.logging.Level
 import java.util.logging.Logger
 
 class RoboDkLink(
@@ -25,6 +26,8 @@ class RoboDkLink(
     var socketTimeout: Duration = Duration.ofSeconds(10),
     var roboDkBuild: Int = 0
 ) : RoboDk, Link by link, Closeable {
+
+    constructor() : this(SocketLink().also { it.logLevel = Level.WARNING })
 
     private var log = Logger.getLogger(this::class.java.name)
 
@@ -159,9 +162,16 @@ class RoboDkLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun itemUserPick(message: String, itemType: ItemType): Item {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun itemUserPick(message: String, itemType: ItemType) = link.session("Item User Pick") {
+        it.sendLine(RdkCommand.PICK_ITEM)
+            .sendLine(message)
+            .sendInt(itemType.value)
+            // Wait for an hour for the user to select
+            .withTimeout(Duration.ofHours(1)) {
+                receiveItem().second!!
+            }
     }
+
 
     override fun showRoboDK() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -196,8 +206,15 @@ class RoboDkLink(
         referenceObject: Item?,
         addToRef: Boolean,
         projectionType: ProjectionType
-    ): Item {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    ) = link.session("Add Curve") {
+        it.sendLine(RdkCommand.ADD_WIRE)
+            .sendMatrix(curvePoints)
+            .sendItem(referenceObject)
+            .sendInt(if (addToRef) 1 else 0)
+            .sendInt(projectionType.value)
+            .withTimeout(Duration.ofHours(1)) {
+                receiveItem().second!!
+            }
     }
 
     override fun addPoints(
@@ -414,4 +431,6 @@ class RoboDkLink(
     }
 
     // </editor-fold>
+
+
 }

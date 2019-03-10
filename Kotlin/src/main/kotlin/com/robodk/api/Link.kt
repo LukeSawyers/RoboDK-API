@@ -1,6 +1,8 @@
 package com.robodk.api
 
 import org.apache.commons.math3.linear.RealMatrix
+import java.time.Duration
+import java.util.logging.Logger
 
 interface Link {
 
@@ -38,15 +40,25 @@ interface Link {
 
     fun checkStatus(): Link
 
+    //<editor-fold "Transport">
+
+    // <editor-fold "Send">
+
     fun sendInt(number: Int): Link
 
     fun sendLine(line: String): Link
 
-    fun sendItem(item: Item): Link
+    fun sendItem(item: Item?): Link
 
     fun sendArray(array: DoubleArray): Link
 
     fun sendPose(pose: RealMatrix): Link
+
+    fun sendMatrix(matrix: RealMatrix): Link
+
+    //</editor-fold>
+
+    // <editor-fold "Receive">
 
     fun receiveInt(): Pair<Boolean, Int>
 
@@ -60,24 +72,51 @@ interface Link {
 
     fun receivePose(): Pair<Boolean, RealMatrix>
 
+    //</editor-fold>
+
+    //</editor-fold>
+
     fun moveX(
         target: Item,
         itemRobot: Item,
         moveType: Int,
         blocking: Boolean = true
-    ) : Link
+    ): Link
 
     fun moveX(
         joints: DoubleArray,
         itemRobot: Item,
         moveType: Int,
         blocking: Boolean = true
-    ) : Link
+    ): Link
 
     fun moveX(
         matTarget: RealMatrix,
         itemRobot: Item,
         moveType: Int,
         blocking: Boolean = true
-    ) : Link
+    ): Link
+}
+
+fun <T> Link.session(
+    message: String? = null,
+    log: Logger = Logger.getLogger(javaClass.name),
+    block: (Link) -> T
+): T {
+    if (message != null) {
+        log.info("\n\n### ItemLink: $message ###\n")
+    }
+
+    checkConnection()
+    val result = block(this)
+    checkStatus()
+    return result
+}
+
+fun <T> Link.withTimeout(timeout: Duration, block: Link.() -> T) : T {
+    val currentTimeout = receiveTimeout
+    receiveTimeout = timeout.toMillis().toInt()
+    val result = block()
+    receiveTimeout = currentTimeout
+    return result
 }

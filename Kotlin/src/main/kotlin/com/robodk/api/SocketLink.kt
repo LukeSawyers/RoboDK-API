@@ -3,6 +3,7 @@ package com.robodk.api
 import com.robodk.api.exception.RdkException
 import com.robodk.api.model.ItemType
 import com.robodk.api.model.fromValue
+import javafx.css.Size
 import org.apache.commons.math3.linear.RealMatrix
 import java.io.*
 import java.net.ConnectException
@@ -21,6 +22,12 @@ class SocketLink(
     var serverEndPort: Int = 20500,
     private var timeoutMillis: Int = 100
 ) : Link {
+
+    private object SizeOf{
+        const val INT = 4
+        const val LONG = 8
+        const val DOUBLE = 8
+    }
 
     override var receiveTimeout: Int
         get() = socket?.soTimeout ?: timeoutMillis
@@ -166,6 +173,9 @@ class SocketLink(
         return this
     }
 
+    //<editor-fold "Transport">
+
+    // <editor-fold "Send">
 
     override fun sendInt(number: Int): Link {
         val sendData = number.toBytes()
@@ -193,7 +203,12 @@ class SocketLink(
         return this
     }
 
-    override fun sendItem(item: Item) = _sendItem(item)
+    override fun sendItem(item: Item?): Link {
+        val idBytes = (item?.itemId ?: 0).toBytes()
+        sendData(idBytes)
+        log.info("SendItem: $item")
+        return this
+    }
 
     override fun sendArray(array: DoubleArray): Link {
         val size = array.size
@@ -217,13 +232,28 @@ class SocketLink(
         val bytes = pose.toDoubleArray().flatMap { it.toBytes().asIterable() }.toByteArray()
         sendData(bytes)
         this.logLevel = logLevel
-        log.info("SendPose: $pose")
+        log.info("Send Pose: $pose")
         return this
     }
 
+    override fun sendMatrix(matrix: RealMatrix): Link {
+        val rows = matrix.rowDimension
+        val cols = matrix.columnDimension
+        sendInt(rows)
+        sendInt(cols)
+        val bytes = matrix.toDoubleArray().flatMap { it.toBytes().asIterable() }.toByteArray()
+        sendData(bytes)
+        log.info("Send Matrix: $matrix")
+        return this
+    }
+
+    //</editor-fold>
+
+    // <editor-fold "Receive">
+
     override fun receiveInt(): Pair<Boolean, Int> {
         return try {
-            val (success, buffer) = receiveData(4)
+            val (success, buffer) = receiveData(SizeOf.INT)
             val value = buffer.toInt()
             log.info("ReceiveInt: ${if (success) "Success: $value" else "Fail"}")
             Pair(success, value)
@@ -234,7 +264,7 @@ class SocketLink(
 
     override fun receiveLong(): Pair<Boolean, Long> {
         return try {
-            val (success, buffer) = receiveData(8)
+            val (success, buffer) = receiveData(SizeOf.LONG)
             val value = buffer.toLong()
             log.info("ReceiveLong: ${if (success) "Success: $value" else "Fail"}")
             Pair(success, value)
@@ -290,7 +320,7 @@ class SocketLink(
     override fun receivePose(): Pair<Boolean, RealMatrix> {
         val pose = matrixOf(4, 4)
         return try {
-            val (success, buffer) = receiveData(16 * 8)
+            val (success, buffer) = receiveData(16 * SizeOf.DOUBLE)
             if (!success) {
                 throw RdkException("Invalid pose sent")
             }
@@ -298,7 +328,7 @@ class SocketLink(
             for (col in 0 until pose.columnDimension) {
                 for (row in 0 until pose.rowDimension) {
                     pose.setEntry(row, col, buffer.copyOfRange(count, count + 8).toDouble())
-                    count+=8
+                    count += 8
                 }
             }
             true
@@ -306,6 +336,10 @@ class SocketLink(
             false
         } to pose
     }
+
+    //</editor-fold>
+
+    //</editor-fold>
 
     override fun moveX(target: Item, itemRobot: Item, moveType: Int, blocking: Boolean) =
         moveXWith(itemRobot, moveType, blocking) {
@@ -318,7 +352,7 @@ class SocketLink(
         moveXWith(itemRobot, moveType, blocking) {
             sendInt(1)
             sendArray(joints)
-            _sendItem(null)
+            sendItem(null)
         }
 
 
@@ -329,7 +363,7 @@ class SocketLink(
             }
             sendInt(2)
             sendArray(matTarget.toDoubleArray())
-            _sendItem(null)
+            sendItem(null)
         }
 
     private fun moveXWith(itemRobot: Item, moveType: Int, blocking: Boolean, block: () -> Unit): Link {
@@ -344,17 +378,9 @@ class SocketLink(
         }
         return this
     }
-
-    private fun _sendItem(item: Item?): Link {
-        val idBytes = (item?.itemId ?: 0).toBytes()
-        sendData(idBytes)
-        log.info("SendItem: $item")
-        return this
-    }
-
     private fun receiveDouble(): Pair<Boolean, Double> {
         return try {
-            val (success, buffer) = receiveData(8)
+            val (success, buffer) = receiveData(SizeOf.DOUBLE)
             val value = buffer.toDouble()
             log.info("ReceiveDouble: ${if (success) "Success: $value" else "Fail"}")
             Pair(success, value)

@@ -9,6 +9,9 @@ object RdkApi {
         const val START = "CMD_START"
         const val MOVE_X = "MoveX"
         const val WAIT_MOVE = "WaitMove"
+        const val PICK_ITEM = "PickItem"
+        const val ADD_WIRE = "AddWire"
+
         object Get {
             const val ITEM_ANY = "G_Item"
             const val ITEM = "G_Item2"

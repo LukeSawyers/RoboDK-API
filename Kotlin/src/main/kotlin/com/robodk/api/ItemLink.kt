@@ -3,6 +3,7 @@ package com.robodk.api
 import com.robodk.api.model.*
 import org.apache.commons.math3.linear.RealMatrix
 import java.awt.Color
+import java.time.Duration
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -159,10 +160,6 @@ class ItemLink(
     }
 
     override fun scale(scale: DoubleArray) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun addCurve(curvePoints: RealMatrix, addToRef: Boolean, projectionType: ProjectionType): Item {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -470,15 +467,5 @@ class ItemLink(
 
     override fun toString() = "ItemLink: ID: $itemId Type: $itemType"
 
-    private fun <T> Link.session(message: String? = null, block :(Link) -> T): T
-    {
-        if (message != null) {
-            log.info("\n\n### ItemLink: $message ###\n")
-        }
 
-        link.checkConnection()
-        val result = block(link)
-        link.checkStatus()
-        return result
-    }
 }

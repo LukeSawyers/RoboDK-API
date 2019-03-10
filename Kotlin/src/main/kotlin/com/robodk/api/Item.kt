@@ -3,6 +3,7 @@ package com.robodk.api
 import com.robodk.api.model.*
 import org.apache.commons.math3.linear.RealMatrix
 import java.awt.Color
+import java.time.Duration
 import java.util.*
 
 interface Item {
@@ -277,23 +278,6 @@ interface Item {
      * @param scale scale to apply as [scale_x, scale_y, scale_z]
      */
     fun scale(scale: DoubleArray)
-
-    /**
-     * Adds a curve provided point coordinates. The provided points must be a list of vertices. A vertex normal can be
-     * provided optionally.
-
-     * @param curvePoints matrix 3xN or 6xN -> N must be multiple of 3
-     * @param addToRef add_to_ref -> If True, the curve will be added as part of the object in the RoboDK item tree
-     * @param projectionType Type of projection. For example: PROJECTION_ALONG_NORMAL_RECALC will project along the
-     * point normal and recalculate the normal vector on the surface projected.
-     *
-     * @return returns the object where the curve was added or null if failed
-     */
-    fun addCurve(
-        curvePoints: RealMatrix,
-        addToRef: Boolean = false,
-        projectionType: ProjectionType = ProjectionType.ALONG_NORMAL_RECALC
-    ): Item
 
     /**
      * Projects a point to the object given its coordinates. The provided points must be a list of [XYZ] coordinates.
