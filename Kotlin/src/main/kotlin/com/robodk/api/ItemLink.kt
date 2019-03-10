@@ -4,12 +4,22 @@ import com.robodk.api.model.*
 import org.apache.commons.math3.linear.RealMatrix
 import java.awt.Color
 import java.util.*
+import java.util.logging.Level
+import java.util.logging.Logger
 
 class ItemLink(
     val link: Link,
     override val itemId: Long = 0,
     override val itemType: ItemType = ItemType.ANY
 ) : Item {
+
+    private var log = Logger.getLogger(this::class.java.name).also { it.level = Level.INFO }
+
+    var logLevel
+        get() = log.level
+        set(value) {
+            log.level = value
+        }
 
     override val valid = itemId != 0L
 
@@ -32,12 +42,12 @@ class ItemLink(
         set(value) {}
 
     override var name: String
-        get() = link.session {
+        get() = link.session("Get Name") {
             it.sendLine(RdkGet.NAME)
                 .sendItem(this)
                 .receiveLine()
         }.second
-        set(value) = link.session {
+        set(value) = link.session("Set Name: $value") {
             it.sendLine(RdkSet.NAME)
                 .sendLine(value)
         }
@@ -67,12 +77,12 @@ class ItemLink(
         set(value) {}
 
     override var joints: DoubleArray
-        get() = link.session {
+        get() = link.session("Get Joints") {
             it.sendLine(RdkGet.THETAS)
                 .sendItem(this)
                 .receiveArray()
         }.second
-        set(value) = link.session {
+        set(value) = link.session("Set Joints ${value.contentToString()}") {
             it.sendLine(RdkSet.THETAS)
                 .sendArray(value)
                 .sendItem(this)
@@ -208,14 +218,14 @@ class ItemLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun solveFK(joints: DoubleArray) = link.session {
+    override fun solveFK(joints: DoubleArray) = link.session("Solve FK: ${joints.contentToString()}") {
         it.sendLine(RdkGet.FK)
             .sendArray(joints)
             .sendItem(this)
             .receivePose()
     }.second
 
-    override fun jointsConfig(joints: DoubleArray) = link.session {
+    override fun jointsConfig(joints: DoubleArray) = link.session("Joints Config: ${joints.contentToString()}") {
         it.sendLine(RdkGet.THETAS_CONFIG)
             .sendArray(joints)
             .sendItem(this)
@@ -237,7 +247,7 @@ class ItemLink(
             sendPose = reference.multiply(sendPose)
         }
 
-        return link.session {
+        return link.session("Solve IK: $sendPose") {
             if (jointsApprox == null) {
                 it.sendLine(RdkGet.IK)
                     .sendPose(sendPose)
@@ -460,7 +470,12 @@ class ItemLink(
 
     override fun toString() = "ItemLink: ID: $itemId Type: $itemType"
 
-    private fun <T> Link.session(block: (Link) -> T): T {
+    private fun <T> Link.session(message: String? = null, block :(Link) -> T): T
+    {
+        if (message != null) {
+            log.info("\n\n### ItemLink: $message ###\n")
+        }
+
         link.checkConnection()
         val result = block(link)
         link.checkStatus()

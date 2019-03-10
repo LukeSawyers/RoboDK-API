@@ -4,12 +4,13 @@ import com.robodk.api.*
 import com.robodk.api.model.ItemType
 import org.apache.commons.math3.linear.RealMatrix
 import java.util.*
+import java.util.logging.Level
 import java.util.logging.Logger
 
 fun main() {
     val log = Logger.getAnonymousLogger()
 
-    val robot = RoboDkLink(SocketLink(echo = true)).let {
+    val robot = RoboDkLink(SocketLink().also { it.logLevel = Level.OFF }).let {
         it.connect()
         it.getItemByName("", ItemType.ROBOT)!!
     }

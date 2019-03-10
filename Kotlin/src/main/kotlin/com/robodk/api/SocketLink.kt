@@ -8,14 +8,13 @@ import java.io.*
 import java.net.ConnectException
 import java.net.Socket
 import java.net.SocketTimeoutException
-import java.time.Duration
+import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.properties.Delegates
 
 class SocketLink(
     var safeMode: Boolean = true,
     var autoUpdate: Boolean = false,
-    var echo: Boolean = false,
     var startHidden: Boolean = false,
     var serverIpAddress: String = "localhost",
     var serverStartPort: Int = 20500,
@@ -27,7 +26,7 @@ class SocketLink(
         get() = socket?.soTimeout ?: timeoutMillis
         set(value) {
             socket?.soTimeout = value
-            if(socket != null) {
+            if (socket != null) {
                 socket!!.soTimeout = value
             }
             timeoutMillis = value
@@ -39,7 +38,13 @@ class SocketLink(
 
     override val connected get() = socket?.isConnected ?: false
 
-    private var log = Logger.getLogger(this::class.java.name)
+    var logLevel
+        get() = log.level
+        set(value) {
+            log.level = value
+        }
+
+    private var log = Logger.getLogger(this::class.java.name).also { it.level = Level.INFO }
 
     private var dataIn: DataInputStream? = null
     private var dataOut: DataOutputStream? = null
@@ -47,7 +52,7 @@ class SocketLink(
     private var inReader: BufferedReader? = null
 
     private var socket: Socket? by Delegates.observable<Socket?>(null) { obs, oldVal, newVal ->
-        if (echo && oldVal != newVal && newVal != null) {
+        if (oldVal != newVal && newVal != null) {
             newVal.soTimeout = timeoutMillis
             dataIn = DataInputStream(newVal.getInputStream())
             dataOut = DataOutputStream(newVal.getOutputStream())
@@ -165,18 +170,14 @@ class SocketLink(
     override fun sendInt(number: Int): Link {
         val sendData = number.toBytes()
         sendData(sendData)
-        if (echo) {
-            log.info("SendInt: $number")
-        }
+        log.info("SendInt: $number")
         return this
     }
 
     override fun sendLine(line: String): Link {
         outWriter!!.append(line).append('\n')
         outWriter!!.flush()
-        if (echo) {
-            log.info("SendLine: $line")
-        }
+        log.info("SendLine: $line")
         return this
     }
 
@@ -202,9 +203,7 @@ class SocketLink(
                 System.arraycopy(array[i].toBytes(), 0, it, i * 8, 8)
             }
         })
-        if (echo) {
-            log.info("SendArray: Size: ${array.size} - ${array.contentToString()}")
-        }
+        log.info("SendArray: Size: ${array.size} - ${array.contentToString()}")
         return this
     }
 
@@ -213,13 +212,12 @@ class SocketLink(
             throw RdkException("Matrix not Homogenous $pose")
         }
         // suppress the echo from sending the array
-        val isEcho = echo
-        echo = false
-        sendArray(pose.toDoubleArray())
-        echo = isEcho
-        if (echo) {
-            log.info("SendPose: $pose")
-        }
+        val logLevel = log.level
+        this.logLevel = Level.OFF
+        val bytes = pose.toDoubleArray().flatMap { it.toBytes().asIterable() }.toByteArray()
+        sendData(bytes)
+        this.logLevel = logLevel
+        log.info("SendPose: $pose")
         return this
     }
 
@@ -227,9 +225,7 @@ class SocketLink(
         return try {
             val (success, buffer) = receiveData(4)
             val value = buffer.toInt()
-            if (echo) {
-                log.info("ReceiveInt: ${if (success) "Success: $value" else "Fail"}")
-            }
+            log.info("ReceiveInt: ${if (success) "Success: $value" else "Fail"}")
             Pair(success, value)
         } catch (ex: SocketTimeoutException) {
             Pair(false, 0)
@@ -240,9 +236,7 @@ class SocketLink(
         return try {
             val (success, buffer) = receiveData(8)
             val value = buffer.toLong()
-            if (echo) {
-                log.info("ReceiveLong: ${if (success) "Success: $value" else "Fail"}")
-            }
+            log.info("ReceiveLong: ${if (success) "Success: $value" else "Fail"}")
             Pair(success, value)
         } catch (ex: SocketTimeoutException) {
             Pair(false, 0)
@@ -252,9 +246,7 @@ class SocketLink(
     override fun receiveLine(): Pair<Boolean, String> {
         return try {
             val line = inReader!!.readLine()
-            if (echo) {
-                log.info("ReceiveLine: $line")
-            }
+            log.info("ReceiveLine: $line")
             Pair(false, line)
         } catch (ex: SocketTimeoutException) {
             Pair(false, "")
@@ -302,10 +294,11 @@ class SocketLink(
             if (!success) {
                 throw RdkException("Invalid pose sent")
             }
+            var count = 0
             for (col in 0 until pose.columnDimension) {
                 for (row in 0 until pose.rowDimension) {
-                    val index = row + col * 8
-                    pose.setEntry(row, col, buffer.copyOfRange(index, index + 8).toDouble())
+                    pose.setEntry(row, col, buffer.copyOfRange(count, count + 8).toDouble())
+                    count+=8
                 }
             }
             true
@@ -355,20 +348,16 @@ class SocketLink(
     private fun _sendItem(item: Item?): Link {
         val idBytes = (item?.itemId ?: 0).toBytes()
         sendData(idBytes)
-        if (echo) {
-            log.info("SendItem: $item")
-        }
+        log.info("SendItem: $item")
         return this
     }
 
     private fun receiveDouble(): Pair<Boolean, Double> {
         return try {
             val (success, buffer) = receiveData(8)
-            val value = buffer.toLong()
-            if (echo) {
-                log.info("ReceiveLong: ${if (success) "Success: $value" else "Fail"}")
-            }
-            Pair(success, 0.0)
+            val value = buffer.toDouble()
+            log.info("ReceiveDouble: ${if (success) "Success: $value" else "Fail"}")
+            Pair(success, value)
         } catch (ex: SocketTimeoutException) {
             Pair(false, 0.0)
         }
