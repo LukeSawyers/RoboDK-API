@@ -3,7 +3,6 @@ package com.robodk.api
 import com.robodk.api.exception.RdkException
 import com.robodk.api.model.ItemType
 import com.robodk.api.model.fromValue
-import javafx.css.Size
 import org.apache.commons.math3.linear.RealMatrix
 import java.io.*
 import java.net.ConnectException
