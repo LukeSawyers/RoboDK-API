@@ -1,13 +1,25 @@
 package com.robodk.api
 
-import com.robodk.api.model.*
+import com.robodk.api.model.CollisionCheckOptions
+import com.robodk.api.model.InstructionListJointsResult
+import com.robodk.api.model.ItemFlags
+import com.robodk.api.model.ItemType
+import com.robodk.api.model.ListJointsType
+import com.robodk.api.model.ObjectSelectionType
+import com.robodk.api.model.ProgramExecutionType
+import com.robodk.api.model.ProgramInstruction
+import com.robodk.api.model.ProgramRunType
+import com.robodk.api.model.ProjectionType
+import com.robodk.api.model.RunMode
+import com.robodk.api.model.UpdateResult
+import com.robodk.api.model.VisibleRefType
 import org.apache.commons.math3.linear.RealMatrix
 import java.awt.Color
-import java.time.Duration
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
 
+/** Implementation of te [Item] interface through a [Link] interface. */
 class ItemLink(
     val link: Link,
     override val itemId: Long = 0,
@@ -25,21 +37,21 @@ class ItemLink(
     override val valid = itemId != 0L
 
     override val visible: Boolean
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
     override val children: List<Item>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
     override val selectedFeature: Triple<Boolean, ObjectSelectionType, Int>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
     override val jointsHome: DoubleArray
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
     override val jointLimits: Pair<DoubleArray, DoubleArray>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
     override val busy: Boolean
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
     override val instructionCount: Int
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
     override var parent: Item
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
         set(value) {}
 
     override var name: String
@@ -55,26 +67,26 @@ class ItemLink(
 
 
     override var itemFlags: EnumSet<ItemFlags>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
         set(value) {}
 
     override var pose: RealMatrix
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
         set(value) {}
     override var geometryPose: RealMatrix
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
         set(value) {}
     override var poseTool: RealMatrix
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
         set(value) {}
     override var poseFrame: RealMatrix
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
         set(value) {}
     override var poseAbs: RealMatrix
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
         set(value) {}
     override var color: Color
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
         set(value) {}
 
     override var joints: DoubleArray
@@ -92,127 +104,127 @@ class ItemLink(
 
 
     override fun clone(connectionLink: RoboDk): Item {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
-    override fun equals(otherItem: Item): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun equalTo(otherItem: Item): Boolean {
+        TODO("not implemented")
     }
 
     override fun newLink() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun save(filename: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun delete() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setParentStatic(parent: Item) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun attachClosest(): Item {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun detachClosest(parent: Item?): Item {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun detachAll(parent: Item?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setVisible(visible: Boolean, visibleFrame: VisibleRefType) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun showAsCollided(collided: Boolean, robotLinkId: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setPoseFrame(frameItem: Item) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setPoseTool(toolItem: Item) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun recolor(toColor: DoubleArray, fromColor: DoubleArray, tolerance: Double) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun recolor(toColor: Color, fromColor: Color, tolerance: Double) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setColor(shapeId: Int, tocolor: Color) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setTransparency(alpha: Double) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun scale(scale: DoubleArray) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun projectPoints(points: RealMatrix, projectionType: ProjectionType): RealMatrix {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun getPoints(featureType: ObjectSelectionType, featureId: Int): Pair<String, RealMatrix> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setMachiningParameters(ncfile: String, partObj: Item?, options: String): Item {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setAsCartesianTarget() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setAsJointTarget() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun objectLink(linkId: Int): Item {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun getLink(typeLinked: ItemType): Item {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setRobot(robot: Item?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setFrame(frame: Item) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setFrame(frame: RealMatrix) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setTool(tool: Item) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setTool(tool: RealMatrix) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun addTool(toolPose: RealMatrix, toolName: String): Item {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun solveFK(joints: DoubleArray) = link.session("Solve FK: ${joints.contentToString()}") {
@@ -257,21 +269,21 @@ class ItemLink(
         }
     }
 
-    override fun solveIK_All(pose: RealMatrix, tool: RealMatrix?, reference: RealMatrix?): RealMatrix {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun solveIKAll(pose: RealMatrix, tool: RealMatrix?, reference: RealMatrix?): RealMatrix {
+        TODO("not implemented")
     }
 
     override fun connect(robotIp: String): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun disconnect(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun moveJ(itemTarget: Item, blocking: Boolean) {
         if (itemTarget.itemType == ItemType.PROGRAM) {
-
+            // TODO
         } else {
             link.moveX(itemTarget, this, 1, blocking)
         }
@@ -286,61 +298,61 @@ class ItemLink(
     }
 
     override fun moveL(itemTarget: Item, blocking: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun moveL(joints: DoubleArray, blocking: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun moveL(target: RealMatrix, blocking: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun moveC(itemTarget1: Item, itemTarget2: Item, blocking: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun moveC(joints1: DoubleArray, joints2: DoubleArray, blocking: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun moveC(target1: RealMatrix, target2: RealMatrix, blocking: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
-    override fun moveJ_Test(j1: DoubleArray, j2: DoubleArray, minstepDeg: Double): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun moveJTest(j1: DoubleArray, j2: DoubleArray, minstepDeg: Double): Int {
+        TODO("not implemented")
     }
 
-    override fun moveJ_Test_Blend(
+    override fun moveJTestBlend(
         j1: DoubleArray,
         j2: DoubleArray,
         j3: DoubleArray,
         blendDeg: Double,
         minstepDeg: Double
     ): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
-    override fun moveL_Test(j1: DoubleArray, j2: DoubleArray, minstepDeg: Double): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun moveLTest(j1: DoubleArray, j2: DoubleArray, minstepDeg: Double): Int {
+        TODO("not implemented")
     }
 
     override fun setSpeed(speedLinear: Double, accelLinear: Double, speedJoints: Double, accelJoints: Double) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setRounding(rounding: Double) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun showSequence(sequence: RealMatrix) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun stop() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun waitMove(timeoutSec: Double) {
@@ -355,35 +367,35 @@ class ItemLink(
     }
 
     override fun makeProgram(filename: String, runMode: RunMode): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setRunType(programExecutionType: ProgramExecutionType) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun runProgram(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun runCode(parameters: String?): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun runCodeCustom(code: String, runType: ProgramRunType): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun pause(timeMs: Double) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setDO(ioVar: String, ioValue: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun waitDI(ioVar: String, ioValue: String, timeoutMs: Double) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun addCustomInstruction(
@@ -393,35 +405,35 @@ class ItemLink(
         blocking: Boolean,
         cmdRunOnRobot: String
     ) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun addMoveJ(itemTarget: Item) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun addMoveL(itemTarget: Item) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun showInstructions(show: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun showTargets(show: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun getInstruction(instructionId: Int): ProgramInstruction {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setInstruction(instructionId: Int, instruction: ProgramInstruction) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun update(): UpdateResult {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun update(
@@ -430,11 +442,11 @@ class ItemLink(
         linStepMm: Double,
         jointStepDeg: Double
     ): UpdateResult {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun instructionList(): Pair<Int, RealMatrix> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun getInstructionListJoints(
@@ -444,9 +456,9 @@ class ItemLink(
         collisionCheck: CollisionCheckOptions,
         flags: ListJointsType,
         timeoutSec: Int,
-        time_step: Double
+        timeStep: Double
     ): InstructionListJointsResult {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun instructionListJoints(
@@ -456,16 +468,15 @@ class ItemLink(
         collisionCheck: CollisionCheckOptions,
         flags: ListJointsType,
         timeoutSec: Int,
-        time_step: Double
+        timeStep: Double
     ): Triple<Int, String, RealMatrix> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun finish() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun toString() = "ItemLink: ID: $itemId Type: $itemType"
-
 
 }

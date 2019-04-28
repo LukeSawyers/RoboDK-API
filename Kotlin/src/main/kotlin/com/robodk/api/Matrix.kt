@@ -4,6 +4,7 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix
 import org.apache.commons.math3.linear.MatrixUtils
 import org.apache.commons.math3.linear.RealMatrix
 
+/** Creates a new matrix with the specified number of rows and columns and populates it with the supplied values. */
 fun matrixOf(rows: Int, cols: Int, vararg values: Double): RealMatrix = Array2DRowRealMatrix(
     (0 until rows).map { row ->
         (0 until cols).map { col ->
@@ -12,25 +13,34 @@ fun matrixOf(rows: Int, cols: Int, vararg values: Double): RealMatrix = Array2DR
     }.toTypedArray()
 )
 
+/** Creates a new matrix using the supplied double arrays as rows in the matrix.*/
 fun matrixOf(rows: List<DoubleArray>): RealMatrix = Array2DRowRealMatrix(rows.toTypedArray())
 
+/** Creates a matrix using the supplied double arrays as rows in the matrix. */
 fun matrixOf(vararg rows: DoubleArray) = matrixOf(rows.toList())
 
+/** Creates the inverse matrix. */
 val RealMatrix.inverse: RealMatrix get() = MatrixUtils.inverse(this)
 
+/** True if this matrix is homogenous. */
 val RealMatrix.isHomogenous get() = this.rowDimension == 4 && this.columnDimension == 4
 
-fun RealMatrix.forEachColumnAndRow(block: (Pair<Int, Int>) -> Unit) {
+/**
+ * Iterate over every column and row in this matrix.
+ * @param block The code to be executed per row and column, supplied with the column index and row index.
+ */
+fun RealMatrix.forEachColumnAndRow(block: (Int, Int) -> Unit) {
     for (j in 0 until columnDimension) {
         for (i in 0 until rowDimension) {
-            block(j to i)
+            block(j, i)
         }
     }
 }
 
+/** Converts this matrix to a double array. */
 fun RealMatrix.toDoubleArray(): DoubleArray {
     val sendList = mutableListOf<Double>()
-    forEachColumnAndRow { (col, row) ->
+    forEachColumnAndRow { col, row ->
         sendList.add(getEntry(row, col))
     }
     return sendList.toDoubleArray()

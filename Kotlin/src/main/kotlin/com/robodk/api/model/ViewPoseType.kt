@@ -1,30 +1,30 @@
 package com.robodk.api.model
 
-/** Type of the view pose: Isometric, Top, Front, Back, ... */
+/** Type of the view pose: Isometric, Top, Front, Back, ... etc. */
 enum class ViewPoseType : NumberedEnum<Int, ViewPoseType> {
 
-    /** Currently active view pose (do not calculate) */
+    /** Currently active view pose (do not calculate). */
     ACTIVE_VIEW,
 
-    /** Isometric View pose */
+    /** Isometric View pose. */
     ISOMETRIC,
 
-    /** Front view pose */
+    /** Front view pose. */
     FRONT,
 
-    /** Top view pose */
+    /** Top view pose. */
     TOP,
 
-    /** Right view pose */
+    /** Right view pose. */
     RIGHT,
 
-    /** Left view pose */
+    /** Left view pose. */
     LEFT,
 
-    /** Back view pose */
+    /** Back view pose. */
     BACK,
 
-    /** Fit all pose (do not change rotation) */
+    /** Fit all pose (do not change rotation). */
     FIT_ALL;
 
     override val value: Int get() = ordinal

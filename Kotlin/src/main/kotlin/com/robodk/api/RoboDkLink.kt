@@ -4,12 +4,24 @@ import com.robodk.api.collision.CollisionItem
 import com.robodk.api.collision.CollisionPair
 import com.robodk.api.events.EventType
 import com.robodk.api.events.IRoboDkEventSource
-import com.robodk.api.model.*
+import com.robodk.api.model.CollisionCheckOptions
+import com.robodk.api.model.DisplayRefType
+import com.robodk.api.model.EulerType
+import com.robodk.api.model.InteractiveType
+import com.robodk.api.model.ItemType
+import com.robodk.api.model.ProjectionType
+import com.robodk.api.model.ReferenceCalibrationType
+import com.robodk.api.model.RunMode
+import com.robodk.api.model.StereoCameraMeasure
+import com.robodk.api.model.TcpCalibrationType
+import com.robodk.api.model.ViewPoseType
+import com.robodk.api.model.WindowFlags
+import com.robodk.api.model.WindowState
 import org.apache.commons.math3.linear.RealMatrix
 import java.awt.Color
 import java.io.Closeable
 import java.time.Duration
-import java.util.*
+import java.util.EnumSet
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -50,32 +62,32 @@ class RoboDkLink(
         private set
 
     override val collisions: Int
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
     override val collisionItems: List<CollisionItem>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
     override val collisionPairs: List<CollisionPair>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
     override val version: String
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
     override val openStations: List<Item>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
     override val parameterList: Map<String, String>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
     override val stereoCameraMeasure: StereoCameraMeasure
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
     override val license: String
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
     override val selectedItems: List<Item>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
 
     override var activeStation: Item
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
         set(value) {}
     override var simulationSpeed: Double
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
         set(value) {}
     override var runMode: RunMode
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = TODO("not implemented")
         set(value) {}
 
     override fun newLink(): RoboDk {
@@ -87,55 +99,55 @@ class RoboDkLink(
     }
 
     override fun eventsListen(): IRoboDkEventSource {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun eventsListenClose() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun sampleRoboDkEvent(evt: EventType, item: Item): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun eventsLoop(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun closeRoboDK() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setWindowState(windowState: WindowState) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun addFile(filename: String, parent: Item?): Item {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun addTarget(name: String, parent: Item?, robot: Item?): Item {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun addProgram(name: String, robot: Item?): Item {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun addStation(name: String): Item {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun addMachiningProject(name: String, itemRobot: Item?): Item {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun render(alwaysRender: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun update() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun getItemByName(name: String, itemType: ItemType): Item? {
@@ -155,11 +167,11 @@ class RoboDkLink(
     }
 
     override fun getItemListNames(itemType: ItemType): List<String> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun getItemList(itemType: ItemType): List<Item> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun itemUserPick(message: String, itemType: ItemType) = link.session("Item User Pick") {
@@ -174,31 +186,31 @@ class RoboDkLink(
 
 
     override fun showRoboDK() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun fitAll() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun hideRoboDK() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setWindowFlags(flags: EnumSet<WindowFlags>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun showMessage(message: String, popup: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun save(filename: String, itemsave: Item?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun addShape(trianglePoints: RealMatrix, addTo: Item?, shapeOverride: Boolean, color: Color?): Item {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun addCurve(
@@ -223,7 +235,7 @@ class RoboDkLink(
         addToRef: Boolean,
         projectionType: ProjectionType
     ): Item {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun projectPoints(
@@ -231,39 +243,39 @@ class RoboDkLink(
         objectProject: Item,
         projectionType: ProjectionType
     ): RealMatrix {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun closeStation() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun addFrame(name: String, parent: Item?): Item {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun runProgram(function: String): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun runCode(code: String, codeIsFunctionCall: Boolean): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun runMessage(message: String, messageIsComment: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun isInside(objectInside: Item, objectParent: Item): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun setCollisionActive(collisionCheck: CollisionCheckOptions): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun enableCollisionCheckingForAllItems() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
     override fun disableCollisionCheckingForAllItems() {
@@ -321,11 +333,11 @@ class RoboDkLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun setColor(item_list: List<Item>, color_list: List<Color>) {
+    override fun setColor(itemList: List<Item>, colorList: List<Color>) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun showAsCollided(item_list: List<Item>, collided_list: List<Boolean>, robot_link_id: List<Int>?) {
+    override fun showAsCollided(itemList: List<Item>, collidedList: List<Boolean>, robotLinkId: List<Int>?) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -409,7 +421,7 @@ class RoboDkLink(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun popup_ISO9283_CubeProgram(robot: Item?): Item {
+    override fun popupISO9283CubeProgram(robot: Item?): Item {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -431,6 +443,5 @@ class RoboDkLink(
     }
 
     // </editor-fold>
-
 
 }

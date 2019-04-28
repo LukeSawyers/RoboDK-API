@@ -1,11 +1,11 @@
 package com.robodk.api.model
 
 /**
- * Script execution Mode
+ * Script execution Mode.
  */
 enum class RunMode(val value: Int) {
     /**
-     * performs the simulation moving the robot (default)
+     * performs the simulation moving the robot (default).
      */
     SIMULATE(1),
 

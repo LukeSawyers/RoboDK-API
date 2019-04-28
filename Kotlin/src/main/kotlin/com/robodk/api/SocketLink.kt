@@ -4,7 +4,13 @@ import com.robodk.api.exception.RdkException
 import com.robodk.api.model.ItemType
 import com.robodk.api.model.fromValue
 import org.apache.commons.math3.linear.RealMatrix
-import java.io.*
+import java.io.BufferedReader
+import java.io.BufferedWriter
+import java.io.DataInputStream
+import java.io.DataOutputStream
+import java.io.IOException
+import java.io.InputStreamReader
+import java.io.OutputStreamWriter
 import java.net.ConnectException
 import java.net.Socket
 import java.net.SocketTimeoutException
@@ -12,6 +18,10 @@ import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.properties.Delegates
 
+/**
+ * Implementation of [Link] using a TCP socket for transport.
+ * This is the default mechanism for communicating with RoboDk.
+ */
 class SocketLink(
     var safeMode: Boolean = true,
     var autoUpdate: Boolean = false,
@@ -74,7 +84,7 @@ class SocketLink(
             return true
         }
 
-        for (i in 0 until 2) {
+        for (i in 0..1) {
             if (serverEndPort < serverStartPort) {
                 serverEndPort = serverStartPort
             }
@@ -101,7 +111,10 @@ class SocketLink(
                 }
             }
         }
-        log.warning("Could not connect to RoboDk. IP: $serverIpAddress, Port Start: $serverStartPort, Port End: $serverEndPort")
+        log.warning("Could not connect to RoboDk. " +
+                "IP: $serverIpAddress, " +
+                "Port Start: $serverStartPort, " +
+                "Port End: $serverEndPort")
         return false
     }
 
@@ -196,7 +209,7 @@ class SocketLink(
                 write(data)
                 flush()
             }
-        } catch (ex: Exception) {
+        } catch (ex: IOException) {
             throw RdkException("Failed to send data: $data -> $ex")
         }
         return this
@@ -255,9 +268,9 @@ class SocketLink(
             val (success, buffer) = receiveData(SizeOf.INT)
             val value = buffer.toInt()
             log.info("ReceiveInt: ${if (success) "Success: $value" else "Fail"}")
-            Pair(success, value)
+            success to value
         } catch (ex: SocketTimeoutException) {
-            Pair(false, 0)
+            false to 0
         }
     }
 
@@ -266,9 +279,9 @@ class SocketLink(
             val (success, buffer) = receiveData(SizeOf.LONG)
             val value = buffer.toLong()
             log.info("ReceiveLong: ${if (success) "Success: $value" else "Fail"}")
-            Pair(success, value)
+            success to value
         } catch (ex: SocketTimeoutException) {
-            Pair(false, 0)
+            false to 0
         }
     }
 
@@ -276,9 +289,9 @@ class SocketLink(
         return try {
             val line = inReader!!.readLine()
             log.info("ReceiveLine: $line")
-            Pair(false, line)
+            false to line
         } catch (ex: SocketTimeoutException) {
-            Pair(false, "")
+            false to ""
         }
     }
 
@@ -300,7 +313,7 @@ class SocketLink(
         val (countSuccess, count) = receiveInt()
 
         if (!countSuccess) {
-            return Pair(false, doubleArrayOf())
+            return false to doubleArrayOf()
         }
 
         val arr = DoubleArray(count) { 0.0 }
@@ -308,12 +321,12 @@ class SocketLink(
         for (i in 0 until count) {
             val (doubleSuccess, double) = receiveDouble()
             if (!doubleSuccess) {
-                return Pair(false, doubleArrayOf())
+                return false to doubleArrayOf()
             }
             arr[i] = double
         }
 
-        return Pair(true, arr)
+        return true to arr
     }
 
     override fun receivePose(): Pair<Boolean, RealMatrix> {
@@ -382,9 +395,9 @@ class SocketLink(
             val (success, buffer) = receiveData(SizeOf.DOUBLE)
             val value = buffer.toDouble()
             log.info("ReceiveDouble: ${if (success) "Success: $value" else "Fail"}")
-            Pair(success, value)
+            success to value
         } catch (ex: SocketTimeoutException) {
-            Pair(false, 0.0)
+            false to 0.0
         }
     }
 

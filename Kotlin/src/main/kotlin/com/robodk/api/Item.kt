@@ -1,9 +1,20 @@
 package com.robodk.api
 
-import com.robodk.api.model.*
+import com.robodk.api.model.CollisionCheckOptions
+import com.robodk.api.model.InstructionListJointsResult
+import com.robodk.api.model.ItemFlags
+import com.robodk.api.model.ItemType
+import com.robodk.api.model.ListJointsType
+import com.robodk.api.model.ObjectSelectionType
+import com.robodk.api.model.ProgramExecutionType
+import com.robodk.api.model.ProgramInstruction
+import com.robodk.api.model.ProgramRunType
+import com.robodk.api.model.ProjectionType
+import com.robodk.api.model.RunMode
+import com.robodk.api.model.UpdateResult
+import com.robodk.api.model.VisibleRefType
 import org.apache.commons.math3.linear.RealMatrix
 import java.awt.Color
-import java.time.Duration
 import java.util.*
 
 interface Item {
@@ -15,7 +26,7 @@ interface Item {
 
     /**
      * Checks if the item is valid. An invalid item will be returned by an unsuccessful function call.
-     * @return true if valid, false if invalid
+     * @return true if valid, false if invalid.
      */
     val valid: Boolean
 
@@ -27,36 +38,36 @@ interface Item {
 
     /**
      * Returns a list of the item childs that are attached to the provided item.
-     * @return item x n -> list of child items
+     * @return item x n -> list of child items.
      */
     val children: List<Item>
 
     /**
-     * Retrieve the currently selected feature for this object (surface, point, line, ...)
+     * Retrieve the currently selected feature for this object (surface, point, line, ...).
      *
-     * @param featureType The type of geometry, FEATURE_SURFACE, FEATURE_POINT, ...
-     * @param featureId The internal ID to retrieve the raw geometry (use GetPoints)
+     * @param featureType The type of geometry, FEATURE_SURFACE, FEATURE_POINT, .... etc.
+     * @param featureId The internal ID to retrieve the raw geometry (use GetPoints).
      * @return True if the object is selected
      */
     val selectedFeature: Triple<Boolean, ObjectSelectionType, Int>
 
     /**
      * Returns the home joints of a robot. These joints can be manually set in the robot "Parameters" menu, then select
-     * "Set home position"
+     * "Set home position".
      * Sets the current joints of a robot or the joints of a target. It the item is a cartesian target, it returns the
      * preferred joints (configuration) to go to that cartesian position.
 
-     * @return double x n -> joints array
+     * @return double x n -> joints array.
      */
     val jointsHome: DoubleArray
 
-    /** @return The joint limits of a robot (upper joint limits, lower joint limits) */
+    /** @return The joint limits of a robot (upper joint limits, lower joint limits). */
     val jointLimits: Pair<DoubleArray, DoubleArray>
 
     /**
-     * Checks if a robot or program is currently running (busy or moving)
+     * Checks if a robot or program is currently running (busy or moving).
      *
-     * @return busy status (true=moving, false=stopped)
+     * @return busy status (true=moving, false=stopped).
      */
     val busy: Boolean
 
@@ -67,9 +78,9 @@ interface Item {
     var parent: Item
 
     /**
-     * Returns the name of an item. The name of the item is always displayed in the RoboDK station tree
-
-     * @return name of the item
+     * Returns the name of an item. The name of the item is always displayed in the RoboDK station tree.
+     *
+     * @return name of the item.
      */
     var name: String
 
@@ -78,7 +89,7 @@ interface Item {
      * object/frame/target with respect to its parent.
      * If a robot is provided, this will be the pose of the end effector.
      *
-     * @param pose 4x4 homogeneous matrix
+     * @param pose 4x4 homogeneous matrix.
      */
     var pose: RealMatrix
 
@@ -86,7 +97,7 @@ interface Item {
      * The position (pose) the object geometry with respect to its own reference frame. This procedure works for
      * tools and objects.
      *
-     * @param pose 4x4 homogeneous matrix
+     * @param pose 4x4 homogeneous matrix.
      */
     var geometryPose: RealMatrix
 
@@ -94,7 +105,7 @@ interface Item {
      * Returns the tool pose of an item. If a robot is provided it will get the tool pose of the active tool held by
      * the robot.
      *
-     * @return 4x4 homogeneous matrix (pose)
+     * @return 4x4 homogeneous matrix (pose).
      */
     var poseTool: RealMatrix
 
@@ -102,7 +113,7 @@ interface Item {
      * The reference frame pose of an item. If a robot is provided it will get the tool pose of the active
      * reference frame used by the robot.
      *
-     * @return 4x4 homogeneous matrix (pose)
+     * @return 4x4 homogeneous matrix (pose).
      */
     var poseFrame: RealMatrix
 
@@ -112,7 +123,7 @@ interface Item {
      * Returns the global position (pose) of an item. For example, the position of an object/frame/target with respect
      * to the station origin.
 
-     * @param pose 4x4 homogeneous matrix (pose)
+     * @param pose 4x4 homogeneous matrix (pose).
      */
     var poseAbs: RealMatrix
 
@@ -123,15 +134,15 @@ interface Item {
      * The current joints of a robot or the joints of a target. If the item is a cartesian target, it returns the
      * preferred joints (configuration) to go to that cartesian position.
      *
-     * @return double x n -> joints matrix
+     * @return double x n -> joints matrix.
      */
     var joints: DoubleArray
 
     /**
      * Make a copy of the item with a new roboDK link.
      *
-     * @param connectionLink RoboDK link
-     * @return new item
+     * @param connectionLink RoboDK link.
+     * @return new item.
      */
     fun clone(connectionLink: RoboDk): Item
 
@@ -145,7 +156,7 @@ interface Item {
      * @param otherItem
      * @return True if this item and other item is the same RoboDK item.
      */
-    fun equals(otherItem: Item): Boolean
+    fun equalTo(otherItem: Item): Boolean
 
     /**
      * Create a new communication link. Use this for robots if you use a multithread application running multiple
@@ -154,7 +165,7 @@ interface Item {
     fun newLink()
 
     /**
-     * Save a station or object to a file
+     * Save a station or object to a file.
      */
     fun save(filename: String)
 
@@ -163,8 +174,8 @@ interface Item {
 
     /**
      * Attaches the item to another parent while maintaining the current absolute position in the station.
-     * The relationship between this item and its parent is changed to maintain the abosolute position.
-     * @param parent parent item to attach this item
+     * The relationship between this item and its parent is changed to maintain the absolute position.
+     * @param parent parent item to attach this item.
      */
     fun setParentStatic(parent: Item);
 
@@ -190,21 +201,20 @@ interface Item {
     fun detachAll(parent: Item? = null)
 
     /**
-     * Sets the item visiblity status
+     * Sets the item visiblity status.
      *
      * @param visible
-     * @param visibleFrame srt the visible reference frame (1) or not visible (0)
+     * @param visibleFrame srt the visible reference frame (1) or not visible (0).
      */
     fun setVisible(visible: Boolean, visibleFrame: VisibleRefType = VisibleRefType.DEFAULT)
 
     /**
-     * Show an object or a robot link as collided (red)
+     * Show an object or a robot link as collided (red).
 
      * @param collided
      * @param robotLinkId
      */
     fun showAsCollided(collided: Boolean, robotLinkId: Int = 0)
-
 
 
     /**
@@ -230,8 +240,8 @@ interface Item {
      * range from 0 to 1.
      * Alpha (A) defaults to 1 (100% opaque). Set A to 0 to make an object transparent.
 
-     * @param tocolor color to change to
-     * @param fromcolor filter by this color
+     * @param tocolor color to change to.
+     * @param fromcolor filter by this color.
      * @param tolerance optional tolerance to use if a color filter is used (defaults to 0.1)
      */
     fun recolor(
@@ -245,9 +255,9 @@ interface Item {
      * range from 0 to 1.
      * Alpha (A) defaults to 1 (100% opaque). Set A to 0 to make an object transparent.
 
-     * @param tocolor color to change to
-     * @param fromcolor filter by this color
-     * @param tolerance optional tolerance to use if a color filter is used (defaults to 0.1)
+     * @param tocolor color to change to.
+     * @param fromcolor filter by this color.
+     * @param tolerance optional tolerance to use if a color filter is used (defaults to 0.1).
      */
     fun recolor(toColor: Color, fromColor: Color = Color(0, 0, 0, 0), tolerance: Double = 0.1)
 
@@ -258,8 +268,8 @@ interface Item {
      * available).
      * A color is in the format COLOR = [R, G, B,(A = 1)] where all values range from 0 to 1.
 
-     * @param shapeId ID of the shape: the ID is the order in which the shape was added using AddShape()
-     * @param tocolor color to set
+     * @param shapeId ID of the shape: the ID is the order in which the shape was added using AddShape().
+     * @param tocolor color to set.
      */
     fun setColor(shapeId: Int, tocolor: Color)
 
@@ -267,7 +277,7 @@ interface Item {
      * Set the alpha channel of an object, tool or robot.
      * The alpha channel must remain between 0 and 1.
 
-     * @param alpha transparency level
+     * @param alpha transparency level.
      */
     fun setTransparency(alpha: Double)
 
@@ -275,7 +285,7 @@ interface Item {
      * Apply a scale to an object to make it bigger or smaller.
      * The scale can be uniform (if scale is a float value) or per axis (if scale is a vector).
 
-     * @param scale scale to apply as [scale_x, scale_y, scale_z]
+     * @param scale scale to apply as [scale_x, scale_y, scale_z].
      */
     fun scale(scale: DoubleArray)
 
@@ -283,26 +293,31 @@ interface Item {
      * Projects a point to the object given its coordinates. The provided points must be a list of [XYZ] coordinates.
      * Optionally, a vertex normal can be provided [XYZijk].
 
-     * @param points matrix 3xN or 6xN -> list of points to project
+     * @param points matrix 3xN or 6xN -> list of points to project.
      * @param projectionType
      * projection_type -> Type of projection. For example: ProjectionType.AlongNormalRecalc will
      * project along the point normal and recalculate the normal vector on the surface projected.
      *
-     * @return projected points (empty matrix if failed)
+     * @return projected points (empty matrix if failed).
      */
-    fun projectPoints(points: RealMatrix, projectionType: ProjectionType = ProjectionType.ALONG_NORMAL_RECALC): RealMatrix
+    fun projectPoints(
+        points: RealMatrix,
+        projectionType: ProjectionType = ProjectionType.ALONG_NORMAL_RECALC
+    ): RealMatrix
 
 
     /**
      * Retrieves the point under the mouse cursor, a curve or the 3D points of an object. The points are provided in
      * [XYZijk] format in relative coordinates. The XYZ are the local point coordinate and ijk is the normal of the
      * surface.
+     *
      * @param featureType The type of geometry (FEATURE_SURFACE, FEATURE_POINT, ...). Set to FEATURE_SURFACE and if
      * not point or curve was selected, the name of the geometry will be 'point on surface'
      * @param featureId The internal ID to retrieve the right geometry from the object (use SelectedFeature)
      * @param pointList The point or a list of points as XYZijk, coordinates are relative to the object (ijk is the
      * normal to the surface)
-     * @return The name of the selected geometry (if applicable)
+     *
+     * @return The name of the selected geometry (if applicable).
      */
     fun getPoints(featureType: ObjectSelectionType, featureId: Int): Pair<String, RealMatrix>
 
@@ -313,10 +328,11 @@ interface Item {
      * Tip: Use getLink() and setLink() to get/set the robot tool, reference frame, robot and program linked to the
      * project.
      * Tip: Use setPose() and setJoints() to update the path to tool orientation or the preferred start joints.
-     * @param ncfile path to the NC (G-code/APT/Point cloud) file to load (optional)
+     *
+     * @param ncfile path to the NC (G-code/APT/Point cloud) file to load (optional).
      * @param partObj
-     * @param options Additional options (optional)
-     * @return Program (null). Use Update() to retrieve the result
+     * @param options Additional options (optional).
+     * @return Program (null). Use Update() to retrieve the result.
      */
     fun setMachiningParameters(ncfile: String = "", partObj: Item? = null, options: String = ""): Item
 
@@ -334,7 +350,8 @@ interface Item {
     /**
      * Returns an item pointer (:class:`.Item`) to a robot link. This is useful to show/hide certain robot links or
      * alter their geometry.
-     * @param linkId link index(0 for the robot base, 1 for the first link, ...)
+     *
+     * @param linkId link index(0 for the robot base, 1 for the first link, ...).
      * @return
      */
     fun objectLink(linkId: Int = 0): Item
@@ -342,7 +359,8 @@ interface Item {
     /**
      * Returns an item pointer (Item class) to a robot, object, tool or program. This is useful to retrieve the
      * relationship between programs, robots, tools and other specific projects.
-     * @param typeLinked type of linked object to retrieve
+     *
+     * @param typeLinked type of linked object to retrieve.
      * @return
      */
     fun getLink(typeLinked: ItemType = ItemType.ROBOT): Item
@@ -353,7 +371,7 @@ interface Item {
      * copy paste these objects.
      * If the robot is not provided, the first available robot will be chosen automatically.
 
-     * @param robot Robot item
+     * @param robot Robot item.
      */
     fun setRobot(robot: Item? = null)
 
@@ -363,27 +381,27 @@ interface Item {
      * If "frame" is an item, it links the robot to the frame item. If frame is a 4x4 Matrix, it updates the linked pose
      * of the robot frame.
 
-     * @param frame item/pose -> frame item or 4x4 Matrix (pose of the reference frame)
+     * @param frame item/pose -> frame item or 4x4 Matrix (pose of the reference frame).
      */
     fun setFrame(frame: Item)
 
     /**
      * Obsolete: Use setPoseFrame instead.
      * Sets the frame of a robot (user frame). The frame can be either an item or a 4x4 Matrix.
-     * If "frame" is an item, it links the robot to the frame item. If frame is a 4x4 Matrix, it updates the linked pose
-     * of the robot frame.
+     * If "frame" is an item, it links the robot to the frame item.
+     * If frame is a 4x4 Matrix, it updates the linked pose of the robot frame.
 
-     * @param frame item/pose -> frame item or 4x4 Matrix (pose of the reference frame)
+     * @param frame item/pose -> frame item or 4x4 Matrix (pose of the reference frame).
      */
     fun setFrame(frame: RealMatrix)
 
     /**
      * Obsolete: Use setPoseTool instead.
      * Sets the tool pose of a robot. The tool pose can be either an item or a 4x4 Matrix.
-     * If "tool" is an item, it links the robot to the tool item. If tool is a 4x4 Matrix, it updates the linked pose of
-     * the robot tool.
+     * If "tool" is an item, it links the robot to the tool item.
+     * If tool is a 4x4 Matrix, it updates the linked pose of the robot tool.
 
-     * @param tool item/pose -> tool item or 4x4 Matrix (pose of the tool frame)
+     * @param tool item/pose -> tool item or 4x4 Matrix (pose of the tool frame).
      */
     fun setTool(tool: Item);
 
@@ -393,7 +411,7 @@ interface Item {
      * If "tool" is an item, it links the robot to the tool item. If tool is a 4x4 Matrix, it updates the linked pose of
      * the robot tool.
 
-     * @param tool item/pose -> tool item or 4x4 Matrix (pose of the tool frame)
+     * @param tool item/pose -> tool item or 4x4 Matrix (pose of the tool frame).
      */
     fun setTool(tool: RealMatrix);
 
@@ -402,7 +420,7 @@ interface Item {
 
      * @param toolPose
      * @param toolName
-     * @return new item created
+     * @return new item created.
      */
     fun addTool(toolPose: RealMatrix, toolName: String = "New TCP"): Item
 
@@ -411,21 +429,22 @@ interface Item {
      * taken into account.
 
      * @param joints
-     * @return 4x4 homogeneous matrix: pose of the robot flange with respect to the robot base
+     * @return 4x4 homogeneous matrix: pose of the robot flange with respect to the robot base.
      */
     fun solveFK(joints: DoubleArray): RealMatrix
 
     /**
      * Returns the robot configuration state for a set of robot joints.
 
-     * @param joints array of joints
-     * @return 3-array -> configuration status as [REAR, LOWERARM, FLIP]
+     * @param joints array of joints.
+     *
+     * @return 3-array -> configuration status as [REAR, LOWERARM, FLIP].
      */
     fun jointsConfig(joints: DoubleArray): DoubleArray
 
     /**
      * Computes the inverse kinematics for the specified robot and pose. The joints returned are the closest to the
-     * current robot configuration (see SolveIK_All())
+     * current robot configuration (see SolveIK_All()).
 
      * @param pose 4x4 matrix -> pose of the robot flange with respect to the robot base frame
      * @param jointsApprox Aproximate solution. Leave empty to return the closest match to the current robot position.
@@ -433,9 +452,15 @@ interface Item {
      * Tip: use robot.PoseTool() to retrieve the active robot tool.
      * @param reference 4x4 matrix -> Optionally provide a reference, otherwise, the robot base is used.
      * Tip: use robot.PoseFrame() to retrieve the active robot reference frame.
-     * @return array of joints
+     *
+     * @return array of joints.
      */
-    fun solveIK(pose: RealMatrix, jointsApprox: DoubleArray? = null, tool: RealMatrix? = null, reference: RealMatrix? = null): DoubleArray
+    fun solveIK(
+        pose: RealMatrix,
+        jointsApprox: DoubleArray? = null,
+        tool: RealMatrix? = null,
+        reference: RealMatrix? = null
+    ): DoubleArray
 
     /**
      * Computes the inverse kinematics for the specified robot and pose. The function returns all available joint
@@ -446,15 +471,17 @@ interface Item {
      * Tip: use robot.PoseTool() to retrieve the active robot tool.
      * @param reference 4x4 matrix -> Optionally provide a reference, otherwise, the robot base is used.
      * Tip: use robot.PoseFrame() to retrieve the active robot reference frame.
+     *
      * @return double x n x m -> joint list (2D matrix)
      */
-    fun solveIK_All(pose: RealMatrix, tool: RealMatrix? = null, reference: RealMatrix? = null): RealMatrix
+    fun solveIKAll(pose: RealMatrix, tool: RealMatrix? = null, reference: RealMatrix? = null): RealMatrix
 
     /**
      * Connect to a real robot using the robot driver.
 
-     * @param robotIp IP of the robot to connect. Leave empty to use the one defined in RoboDK
-     * @return status -> true if connected successfully, false if connection failed
+     * @param robotIp IP of the robot to connect. Leave empty to use the one defined in RoboDK.
+     *
+     * @return status -> true if connected successfully, false if connection failed.
      */
     fun connect(robotIp: String = ""): Boolean
 
@@ -470,9 +497,10 @@ interface Item {
      * Moves a robot to a specific itemTarget ("Move Joint" mode). By default, this function blocks until the robot
      * finishes its movements.
      * Given a itemTarget item, MoveJ can also be applied to programs and a new movement instruction will be added.
-     * @param itemTarget Target to move to as a itemTarget item (RoboDK itemTarget item)
+     *
+     * @param itemTarget Target to move to as a itemTarget item (RoboDK itemTarget item).
      * @param blocking True if we want the instruction to block until the robot finished the movement
-     * (default=true)
+     * (default=true).
      */
     fun moveJ(itemTarget: Item, blocking: Boolean = true)
 
@@ -482,16 +510,17 @@ interface Item {
 
      * @param joints joint target to move to.
      * @param blocking True if we want the instruction to block until the robot finished the movement
-     * (default=true)
+     * (default=true).
      */
     fun moveJ(joints: DoubleArray, blocking: Boolean = true)
 
     /**
      * Moves a robot to a specific target ("Move Joint" mode). By default, this function blocks until the robot finishes
      * its movements.
-     * @param target pose target to move to. It must be a 4x4 Homogeneous matrix
+     *
+     * @param target pose target to move to. It must be a 4x4 Homogeneous matrix.
      * @param blocking True if we want the instruction to block until the robot finished the movement
-     * (default=true)
+     * (default=true).
      */
     fun moveJ(target: RealMatrix, blocking: Boolean = true)
 
@@ -499,27 +528,30 @@ interface Item {
      * Moves a robot to a specific target ("Move Linear" mode). By default, this function blocks until the robot
      * finishes its movements.
      * Given a target item, MoveL can also be applied to programs and a new movement instruction will be added.
+     *
      * @param itemtarget target to move to as a target item (RoboDK target item)
      * @param blocking True if we want the instruction to block until the robot finished the movement
-     * (default=true)
+     * (default=true).
      */
     fun moveL(itemTarget: Item, blocking: Boolean = true)
 
     /**
      * Moves a robot to a specific target ("Move Linear" mode). By default, this function blocks until the robot
      * finishes its movements.
+     *
      * @param joints joint target to move to.
      * @param blocking True if we want the instruction to block until the robot finished the movement
-     * (default=true)
+     * (default=true).
      */
     fun moveL(joints: DoubleArray, blocking: Boolean = true)
 
     /**
      * Moves a robot to a specific target ("Move Linear" mode). By default, this function blocks until the robot
      * finishes its movements.
+     *
      * @param target pose target to move to. It must be a 4x4 Homogeneous matrix
      * @param blocking True if we want the instruction to block until the robot finished the movement
-     * (default=true)
+     * (default=true).
      */
     fun moveL(target: RealMatrix, blocking: Boolean = true)
 
@@ -530,7 +562,7 @@ interface Item {
      * @param itemtarget1 intermediate target to move to as a target item (RoboDK target item)
      * @param itemtarget2 final target to move to as a target item (RoboDK target item)
      * @param blocking True if we want the instruction to block until the robot finished the movement
-     * (default=true)
+     * (default=true).
      */
     fun moveC(itemTarget1: Item, itemTarget2: Item, blocking: Boolean = true)
 
@@ -541,7 +573,7 @@ interface Item {
      * @param joints1 intermediate joint target to move to.
      * @param joints2 final joint target to move to.
      * @param blocking True if we want the instruction to block until the robot finished the movement
-     * (default=true)
+     * (default=true).
      */
     fun moveC(joints1: DoubleArray, joints2: DoubleArray, blocking: Boolean = true)
 
@@ -552,7 +584,7 @@ interface Item {
      * @param target1 intermediate pose target to move to. It must be a 4x4 Homogeneous matrix
      * @param target2 final pose target to move to. It must be a 4x4 Homogeneous matrix
      * @param blocking True if we want the instruction to block until the robot finished the movement
-     * (default=true)
+     * (default=true).
      */
     fun moveC(target1: RealMatrix, target2: RealMatrix, blocking: Boolean = true)
 
@@ -562,22 +594,24 @@ interface Item {
      * @param j1 start joints
      * @param j2 destination joints
      * @param minstepDeg (optional): maximum joint step in degrees
-     * @returncollision : returns 0 if the movement is free of collision. Otherwise it returns the number of pairs of
+     *
+     * @return  0 if the movement is free of collision. Otherwise it returns the number of pairs of
      * objects that collided if there was a collision.
      */
-    fun moveJ_Test(j1: DoubleArray, j2: DoubleArray, minstepDeg: Double = -1.0): Int
+    fun moveJTest(j1: DoubleArray, j2: DoubleArray, minstepDeg: Double = -1.0): Int
 
     /**
      * Checks if a joint movement is free of collision.
 
-     * @param j1 start joints
-     * @param j2 joints via
-     * @param j3 joints final destination
-     * @param blendDeg Blend in degrees
-     * @param minstepDeg (optional): maximum joint step in degrees
+     * @param j1 start joints.
+     * @param j2 joints via.
+     * @param j3 joints final destination.
+     * @param blendDeg Blend in degrees.
+     * @param minstepDeg (optional): maximum joint step in degrees.
+     *
      * @return collision : returns false if the movement is possible and free of collision. Otherwise it returns true.
      */
-    fun moveJ_Test_Blend(
+    fun moveJTestBlend(
         j1: DoubleArray,
         j2: DoubleArray,
         j3: DoubleArray,
@@ -587,20 +621,23 @@ interface Item {
 
     /**
      * Checks if a linear movement is free of collision.
+     *
      * @param j1 start joints
      * @param j2 destination joints
-     * @param minstepDeg (optional): maximum joint step in degrees
+     * @param minstepDeg (optional): maximum joint step in degrees.
+     *
      * @return collision : returns 0 if the movement is free of collision. Otherwise it returns the number of pairs of
      * objects that collided if there was a collision.
      */
-    fun moveL_Test(j1: DoubleArray, j2: DoubleArray, minstepDeg: Double = -1.0): Int
+    fun moveLTest(j1: DoubleArray, j2: DoubleArray, minstepDeg: Double = -1.0): Int
 
     /**
      * Sets the speed and/or the acceleration of a robot.
-     * @param speedLinear linear speed in mm/s (-1 = no change)
-     * @param accelLinear linear acceleration in mm/s2 (-1 = no change)
-     * @param speedJoints joint speed in deg/s (-1 = no change)
-     * @param accelJoints joint acceleration in deg/s2 (-1 = no change)
+     *
+     * @param speedLinear linear speed in mm/s (-1 = no change).
+     * @param accelLinear linear acceleration in mm/s2 (-1 = no change).
+     * @param speedJoints joint speed in deg/s (-1 = no change).
+     * @param accelJoints joint acceleration in deg/s2 (-1 = no change).
      */
     fun setSpeed(
         speedLinear: Double,
@@ -614,34 +651,39 @@ interface Item {
      * In general, it is recommended to allow a small approximation near the corners to maintain a constant speed.
      * Setting a rounding values greater than 0 helps avoiding jerky movements caused by constant acceleration and
      * decelerations.
+     *
      * @param rounding
      */
     fun setRounding(rounding: Double)
 
     /**
-     * Displays a sequence of joints
+     * Displays a sequence of joints.
+     *
      * @param sequence joint sequence as a 6xN matrix or instruction sequence as a 7xN matrix
      */
     fun showSequence(sequence: RealMatrix)
 
 
-    /** Stops a program or a robot */
+    /** Stops a program or a robot. */
     fun stop()
 
     /**
      * Waits (blocks) until the robot finishes its movement.
+     *
      * @param timeoutSec timeout -> Max time to wait for robot to finish its movement (in seconds)
      */
     fun waitMove(timeoutSec: Double = 300.0)
 
     /**
      * Saves a program to a file.
-     * @param filename File path of the program
+     *
+     * @param filename File path of the program.
      * @param runMode RUNMODE_MAKE_ROBOTPROG to generate the program file.Alternatively,
      * Use RUNMODE_MAKE_ROBOTPROG_AND_UPLOAD or RUNMODE_MAKE_ROBOTPROG_AND_START to transfer the program through FTP
      * and execute the program.
+     *
      * @return Transfer succeeded is True if there was a successful program transfer
-     * (if RUNMODE_MAKE_ROBOTPROG_AND_UPLOAD or RUNMODE_MAKE_ROBOTPROG_AND_START are used)
+     * (if RUNMODE_MAKE_ROBOTPROG_AND_UPLOAD or RUNMODE_MAKE_ROBOTPROG_AND_START are used).
      */
     fun makeProgram(filename: String = "", runMode: RunMode = RunMode.MAKE_ROBOT_PROGRAM): Boolean
 
@@ -649,7 +691,8 @@ interface Item {
      * Sets if the program will be run in simulation mode or on the real robot.
      * Use: "PROGRAM_RUN_ON_SIMULATOR" to set the program to run on the simulator only or "PROGRAM_RUN_ON_ROBOT" to
      * force the program to run on the robot.
-     * @return number of instructions that can be executed
+     *
+     * @return number of instructions that can be executed.
      */
     fun setRunType(programExecutionType: ProgramExecutionType)
 
@@ -663,8 +706,9 @@ interface Item {
      * used)
      * if setRunMode(RUNMODE_RUN_ROBOT) is used together with program.setRunType(PROGRAM_RUN_ON_ROBOT) -> the program
      * willrun sequentially on the robot the same way as if we right clicked the program and selected "Run on robot"
-     * in the RoboDK GUI
-     * @return number of instructions that can be executed
+     * in the RoboDK GUI.
+     *
+     * @return number of instructions that can be executed.
      */
     fun runProgram(): Int
 
@@ -678,48 +722,55 @@ interface Item {
      * used)
      * if setRunMode(RUNMODE_RUN_ROBOT) is used together with program.setRunType(PROGRAM_RUN_ON_ROBOT) -> the program
      * will run sequentially on the robot the same way as if we right clicked the program and selected "Run on robot"
-     * in the RoboDK GUI
-     * @param parameters Number of instructions that can be executed
+     * in the RoboDK GUI.
+     *
+     * @param parameters Number of instructions that can be executed.
      */
     fun runCode(parameters: String? = null): Int
 
     /**
      * Adds a program call, code, message or comment to the program. Returns True if succeeded.
-     * @param code string of the code or program to run
-     * @param runType specify if the code is a program
-     * @return True if success; False othwersise
+     *
+     * @param code string of the code or program to run.
+     * @param runType specify if the code is a program.
+     *
+     * @return True if success; False othwersise.
      */
     fun runCodeCustom(code: String, runType: ProgramRunType = ProgramRunType.CALL_PROGRAM): Boolean
 
     /**
      * Generates a pause instruction for a robot or a program when generating code. Set it to -1 (default) if you want
      * the robot to stop and let the user resume the program anytime.
-     * @param timeMs Time in milliseconds
+     *
+     * @param timeMs Time in milliseconds.
      */
-    fun pause(timeMs: Double = -1.0);
+    fun pause(timeMs: Double = -1.0)
 
     /**
      * Sets a variable (output) to a given value. This can also be used to set any variables to a desired value.
-     * @param ioVar io_var -> digital output (string or number)
-     * @param ioValue io_value -> value (string or number)
+     *
+     * @param ioVar io_var -> digital output (string or number).
+     * @param ioValue io_value -> value (string or number).
      */
     fun setDO(ioVar: String, ioValue: String)
 
     /**
      * Waits for an input io_id to attain a given value io_value. Optionally, a timeout can be provided.
-     * @param ioVar io_var -> digital output (string or number)
-     * @param ioValue io_value -> value (string or number)
-     * @param timeoutMs int (optional) -> timeout in miliseconds
+     *
+     * @param ioVar io_var -> digital output (string or number).
+     * @param ioValue io_value -> value (string or number).
+     * @param timeoutMs int (optional) -> timeout in miliseconds.
      */
     fun waitDI(ioVar: String, ioValue: String, timeoutMs: Double = -1.0)
 
     /**
      * Add a custom instruction. This instruction will execute a Python file or an executable file.
-     * @param name digital input (string or number)
-     * @param pathRun path to run(relative to RoboDK/bin folder or absolute path)
-     * @param pathIcon icon path(relative to RoboDK/bin folder or absolute path)
-     * @param blocking True if blocking, 0 if it is a non blocking executable trigger
-     * @param cmdRunOnRobot Command to run through the driver when connected to the robot
+     *
+     * @param name digital input (string or number).
+     * @param pathRun path to run(relative to RoboDK/bin folder or absolute path).
+     * @param pathIcon icon path(relative to RoboDK/bin folder or absolute path).
+     * @param blocking True if blocking, 0 if it is a non blocking executable trigger.
+     * @param cmdRunOnRobot Command to run through the driver when connected to the robot.
      */
     fun addCustomInstruction(
         name: String, pathRun: String, pathIcon: String = "", blocking: Boolean = true, cmdRunOnRobot: String = ""
@@ -727,31 +778,36 @@ interface Item {
 
     /**
      * Adds a new robot move joint instruction to a program. Obsolete. Use MoveJ instead.
-     * @param itemtarget target to move to
+     *
+     * @param itemTarget target to move to.
      */
     fun addMoveJ(itemTarget: Item)
 
     /**
      * Adds a new robot move linear instruction to a program. Obsolete. Use MoveL instead.
-     * @param itemtarget target to move to
+     *
+     * @param itemTarget target to move to.
      */
     fun addMoveL(itemTarget: Item)
 
-    /** Show or hide instruction items of a program in the RoboDK tree */
+    /** Show or hide instruction items of a program in the RoboDK tree. */
     fun showInstructions(show: Boolean = true)
 
-    /** Show or hide targets of a program in the RoboDK tree */
+    /** Show or hide targets of a program in the RoboDK tree. */
     fun showTargets(show: Boolean = true)
 
     /**
-     * Returns the program instruction at position id
+     * Returns the program instruction at position id.
+     *
      * @param instructionId
-     * @return program instruction at position instructionId
+     *
+     * @return program instruction at position instructionId.
      */
     fun getInstruction(instructionId: Int): ProgramInstruction
 
     /**
-     * Sets the program instruction at position id
+     * Sets the program instruction at position id.
+     *
      * @param instructionId
      * @param instruction
      */
@@ -762,14 +818,16 @@ interface Item {
     /**
      * Updates a program and returns the estimated time and the number of valid instructions.
      * An update can also be applied to a robot machining project. The update is performed on the generated program.
+     *
      * @param collisionCheck check_collisions: Check collisions (COLLISION_ON -yes- or COLLISION_OFF -no-)
      * @param timeoutSec Maximum time to wait for the update to complete (in seconds)
      * @param linStepMm Maximum step in millimeters for linear movements (millimeters). Set to -1 to use the default,
      * as specified in Tools-Options-Motion.
      * @param jointStepDeg Maximum step for joint movements (degrees). Set to -1 to use the default, as specified in
      * Tools-Options-Motion.
+     *
      * @return 1.0 if there are no problems with the path or less than 1.0 if there is a problem in the path (ratio
-     * of problem)
+     * of problem).
      */
     fun update(
         collisionCheck: CollisionCheckOptions, /* = CollisionCheckOptions.CollisionCheckOff, */
@@ -781,23 +839,27 @@ interface Item {
     /**
      * Returns the list of program instructions as an MxN matrix, where N is the number of instructions and M equals
      * to 1 plus the number of robot axes.
-     * @param instructions the matrix of instructions
-     * @return Returns 0 if success
+     *
+     * @param instructions the matrix of instructions.
+     *
+     * @return Returns 0 if success.
      */
     fun instructionList(): Pair<Int, RealMatrix>
 
     /**
      * Returns a list of joints.
      * Linear moves are rounded according to the smoothing parameter set inside the program.
-     * @param mmStep Maximum step in millimeters for linear movements (millimeters)
-     * @param degStep Maximum step for joint movements (degrees)
+     *
+     * @param mmStep Maximum step in millimeters for linear movements (millimeters).
+     * @param degStep Maximum step for joint movements (degrees).
      * @param saveToFile Provide a file name to directly save the output to a file. If the file name is not provided it
      * will return the matrix. If step values are very small, the returned matrix can be very large.
-     * @param collisionCheck Check for collisions: will set to 1 or 0
-     * @param flags Reserved for future compatibility
-     * @param timeoutSec Maximum time to wait for the result (in seconds)
-     * @param time_step Time step for time-based calculation (ListJointsType must be set to TimeBased)
-     * @return List of InstructionListJointsResult.
+     * @param collisionCheck Check for collisions: will set to 1 or 0.
+     * @param flags Reserved for future compatibility.
+     * @param timeoutSec Maximum time to wait for the result (in seconds).
+     * @param timeStep Time step for time-based calculation (ListJointsType must be set to TimeBased).
+     *
+     * @return List of ]InstructionListJointsResult.
      */
     fun getInstructionListJoints(
         mmStep: Double = 10.0,
@@ -806,22 +868,24 @@ interface Item {
         collisionCheck: CollisionCheckOptions = CollisionCheckOptions.COLLISION_CHECK_OFF,
         flags: ListJointsType = ListJointsType.ANY,
         timeoutSec: Int = 3600,
-        time_step: Double = 0.2
+        timeStep: Double = 0.2
     ): InstructionListJointsResult
 
     /**
      * Returns a list of joints an MxN matrix, where M is the number of robot axes plus 4 columns. Linear moves are
      * rounded according to the smoothing parameter set inside the program.
-     * @param mmStep Maximum step in millimeters for linear movements (millimeters)
-     * @param degStep Maximum step for joint movements (degrees)
+     *
+     * @param mmStep Maximum step in millimeters for linear movements (millimeters).
+     * @param degStep Maximum step for joint movements (degrees).
      * @param saveToFile Provide a file name to directly save the output to a file. If the file name is not provided
      * it will return the matrix. If step values are very small, the returned matrix can be very large.
-     * @param collisionCheck Check for collisions: will set to 1 or 0
-     * @param flags Reserved for future compatibility
-     * @param timeoutSec Maximum time to wait for the result (in seconds)
-     * @param time_step Time step for time-based calculation (ListJointsType must be set to TimeBased)
+     * @param collisionCheck Check for collisions: will set to 1 or 0.
+     * @param flags Reserved for future compatibility.
+     * @param timeoutSec Maximum time to wait for the result (in seconds).
+     * @param timeStep Time step for time-based calculation (ListJointsType must be set to TimeBased).
+     *
      * @return (0 if success, otherwise, it will return negative values, a human readable error message (if any),
-     * the list of joints as [J1, J2, ..., Jn, ERROR, MM_STEP, DEG_STEP, MOVE_ID] if a file name is not specified)
+     * the list of joints as [J1, J2, ..., Jn, ERROR, MM_STEP, DEG_STEP, MOVE_ID] if a file name is not specified).
      */
     fun instructionListJoints(
         mmStep: Double = 10.0,
@@ -830,7 +894,7 @@ interface Item {
         collisionCheck: CollisionCheckOptions = CollisionCheckOptions.COLLISION_CHECK_OFF,
         flags: ListJointsType = ListJointsType.ANY,
         timeoutSec: Int = 3600,
-        time_step: Double = 0.2
+        timeStep: Double = 0.2
     ): Triple<Int, String, RealMatrix>
 
     /** Disconnect from the RoboDK API. This flushes any pending program generation. */

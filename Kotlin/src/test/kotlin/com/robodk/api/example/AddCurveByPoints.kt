@@ -4,11 +4,10 @@ import com.robodk.api.RoboDkLink
 import com.robodk.api.matrixOf
 import com.robodk.api.model.ItemType
 import org.apache.commons.math3.linear.RealMatrix
-import java.lang.Exception
 import kotlin.math.abs
 import kotlin.math.sqrt
 
-val yLevel = 200.0
+const val yLevel = 200.0
 val projDir = doubleArrayOf(0.0, 1.0, 0.0)
 
 // Sample Input Values: 475 -450 450 50 5
@@ -35,7 +34,7 @@ fun main() {
     curve.name = "Curve: $radius;$xStart;$xStep;$accuracy"
 }
 
-fun circlePoints(
+private fun circlePoints(
     radius: Double,
     xStart: Double,
     xEnd: Double,
@@ -45,21 +44,9 @@ fun circlePoints(
     projection: DoubleArray
 ): RealMatrix {
     val (nx, ny, nz) = projection
-    val absRadius = abs(radius)
-    var absXStep = abs(xStep)
-    val absAccuracy = abs(accuracy)
 
-    if (abs(xStart) >= radius) {
-        throw Exception("Start point is outside the circle")
-    }
-
-    if (abs(xEnd) >= radius) {
-        throw Exception("End point is outside the circle")
-    }
-
-    if (xStart > xEnd) {
-        absXStep = -absXStep
-    }
+    check(abs(xStart) < radius) { "Start point is outside the circle" }
+    check(abs(xEnd) < radius) { "End point is outside the circle" }
 
     var zSense = 1.0
     var x = xStart
@@ -68,17 +55,17 @@ fun circlePoints(
 
     val points = mutableListOf<DoubleArray>()
 
-    for (i in 0..xSteps) {
+    (0..xSteps).forEach {
         val zAbs = sqrt(radius * radius - x * x)
         val zSteps = (2 * zAbs / accuracy).toInt()
         val zStep = -zSense * 2 * zAbs / zSteps
         var z = zSense * zAbs
-        for (j in 0..zSteps) {
+        (0..zSteps).forEach {
             val point = doubleArrayOf(x, y, z, nx, ny, nz)
             points.add(point)
             z += zStep
         }
-        zSense *= (-1.0)
+        zSense *= -1.0
         x += xStep
     }
     return matrixOf(points)

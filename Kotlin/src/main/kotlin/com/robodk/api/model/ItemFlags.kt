@@ -1,6 +1,6 @@
 package com.robodk.api.model
 
-import java.util.*
+import java.util.EnumSet
 
 enum class ItemFlags : NumberedEnum<Int, ItemFlags> {
     NONE,

@@ -2,6 +2,9 @@ package com.robodk.api.collision
 
 import com.robodk.api.Item
 
+/**
+ * A pair of collision items.
+ */
 class CollisionPair(val collisionItem1: CollisionItem, val collisionItem2: CollisionItem) {
 
     constructor(item1: Item, robotLinkId1: Int, item2: Item, robotLinkId2: Int) : this(

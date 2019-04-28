@@ -1,7 +1,7 @@
 package com.robodk.api.model
 
 /**
- *  Projection types (for AddCurve)
+ *  Projection types (for AddCurve).
  */
 enum class ProjectionType : NumberedEnum<Int, ProjectionType> {
 
@@ -21,7 +21,8 @@ enum class ProjectionType : NumberedEnum<Int, ProjectionType> {
     ALONG_NORMAL,
 
     /**
-     * The projection will be done along the normal. Furthermore, the normal will be recalculated according to the surface normal.
+     * The projection will be done along the normal.
+     * Furthermore, the normal will be recalculated according to the surface normal.
      */
     ALONG_NORMAL_RECALC,
 
@@ -31,7 +32,8 @@ enum class ProjectionType : NumberedEnum<Int, ProjectionType> {
     CLOSEST_RECALC_NORMAL,
 
     /**
-     * The normals are recalculated according to the surface normal of the closest projection. The points are not changed.
+     * The normals are recalculated according to the surface normal of the closest projection.
+     * The points are not changed.
      */
     RECALC_NORMAL;
 

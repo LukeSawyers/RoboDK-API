@@ -1,30 +1,30 @@
 package com.robodk.api.model
 
-/** Euler type */
+/** Euler type. */
 enum class EulerType(override val value: Int) : NumberedEnum<Int, EulerType> {
 
-    /** joints */
+    /** Joints. */
     JOINT_FORMAT(-1),
 
-    /** generic */
+    /** Generic. */
     EULER_RX_RYP_RZPP(0),
 
-    /** ABB RobotStudio */
+    /** ABB RobotStudio. */
     EULER_RZ_RYP_RXPP(1),
 
-    /** Kawasaki, Adept, Staubli */
+    /** Kawasaki, Adept, Staubli. */
     EULER_RZ_RYP_RZPP(2),
 
-    /** CATIA, SolidWorks */
+    /** CATIA, SolidWorks. */
     EULER_RZ_RXP_RZPP(3),
 
-    /** Fanuc, Kuka, Motoman, Nachi */
+    /** Fanuc, Kuka, Motoman, Nachi. */
     EULER_RX_RY_RZ(4),
 
-    /** CRS */
+    /** CRS. */
     EULER_RZ_RY_RX(5),
 
-    /** ABB Rapid */
+    /** ABB Rapid. */
     EULER_QUATERNION(6);
 
     override val values get() = values().toList()

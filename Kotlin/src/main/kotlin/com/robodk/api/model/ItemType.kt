@@ -1,7 +1,7 @@
 package com.robodk.api.model
 
 /**
- * Type of an item(robot, object, target, reference frame, ...)
+ * Type of an item(robot, object, target, reference frame, ...).
  */
 enum class ItemType(override val value: Int) : NumberedEnum<Int, ItemType> {
     ANY(-1),

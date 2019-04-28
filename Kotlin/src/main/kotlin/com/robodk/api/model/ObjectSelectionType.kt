@@ -1,8 +1,6 @@
 package com.robodk.api.model
 
-/**
- *  Object selection features:
- */
+/**  Object selection features. */
 enum class ObjectSelectionType : NumberedEnum<Int, ObjectSelectionType> {
     NONE,
     SURFACE,

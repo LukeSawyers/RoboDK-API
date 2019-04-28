@@ -7,6 +7,8 @@ import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
 
+const val moveSpeed = 10.0
+
 fun main() {
     val log = Logger.getAnonymousLogger()
 
@@ -24,26 +26,28 @@ fun main() {
 
     val scanner = Scanner(System.`in`)
 
-    fun printCommands() {
-        println(
-            with(StringBuilder()) {
-                appendln("Commands:")
-                appendln("\t D: Increment Y")
-                appendln("\t A: Decrement Y")
-                appendln("\t S: Increment X")
-                appendln("\t W: Decrement X")
-                appendln("\t Q: Increment Z")
-                appendln("\t E: Decrement Z")
-                appendln("\t H: Print these commands again")
-                toString()
-            }
-        )
-    }
-
     printCommands()
 
-    val moveSpeed = 10.0
+    runProgram(robot, scanner)
+}
 
+private fun printCommands() {
+    println(
+        with(StringBuilder()) {
+            appendln("Commands:")
+            appendln("\t D: Increment Y")
+            appendln("\t A: Decrement Y")
+            appendln("\t S: Increment X")
+            appendln("\t W: Decrement X")
+            appendln("\t Q: Increment Z")
+            appendln("\t E: Decrement Z")
+            appendln("\t H: Print these commands again")
+            toString()
+        }
+    )
+}
+
+private fun runProgram(robot: Item, scanner: Scanner) {
     while (true) {
         if (!scanner.hasNext()) {
             return
@@ -69,7 +73,7 @@ fun main() {
     }
 }
 
-fun Item.translateRobot(move: RealMatrix, blocking: Boolean = true): Boolean {
+private fun Item.translateRobot(move: RealMatrix, blocking: Boolean = true): Boolean {
     val log = Logger.getAnonymousLogger()
     val robotJoints = joints
     val robotPos = solveFK(robotJoints)

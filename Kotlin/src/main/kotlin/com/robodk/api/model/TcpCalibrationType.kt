@@ -1,6 +1,6 @@
 package com.robodk.api.model
 
-/** TCP calibration types */
+/** TCP calibration types. */
 enum class TcpCalibrationType : NumberedEnum<Int, TcpCalibrationType> {
 
     CALIBRATE_TCP_BY_POINT,

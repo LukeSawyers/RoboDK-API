@@ -4,6 +4,9 @@ import org.apache.commons.math3.linear.RealMatrix
 import java.time.Duration
 import java.util.logging.Logger
 
+/**
+ * An object that can connect to RoboDk, send and receive information.
+ */
 interface Link {
 
     /**
@@ -15,8 +18,10 @@ interface Link {
     /** Holds any warnings for the last call */
     val lastStatusMessage: String
 
+    /** True if this link is conneced, else false. */
     val connected: Boolean
 
+    /** The timeout to use when receiving values. */
     var receiveTimeout: Int
 
     /**
@@ -34,42 +39,75 @@ interface Link {
      */
     fun disconnect(): Link
 
+    /** Check the status of the connection. */
     fun checkConnection(): Link
 
+    /** Verify a connection. */
     fun verifyConnection(): Boolean
 
+    /** Check RoboDk status. */
     fun checkStatus(): Link
 
     //<editor-fold "Transport">
 
     // <editor-fold "Send">
 
+    /** Sends the supplied integer to RoboDk. */
     fun sendInt(number: Int): Link
 
+    /** Sends the supplied string line to RoboDk. */
     fun sendLine(line: String): Link
 
+    /** Sends the supplied item to RoboDk. */
     fun sendItem(item: Item?): Link
 
+    /** Sends the supplied double array to RoboDk. */
     fun sendArray(array: DoubleArray): Link
 
+    /** Sends the supplied pose to RoboDk. */
     fun sendPose(pose: RealMatrix): Link
 
+    /** Sends the supplied matrix to RoboDk. */
     fun sendMatrix(matrix: RealMatrix): Link
 
     //</editor-fold>
 
     // <editor-fold "Receive">
 
+    /**
+     * Receive an integer value.
+     * @return Pair of the operation's success and the value. The value will not be valid with failed receive.
+     */
     fun receiveInt(): Pair<Boolean, Int>
 
+    /**
+     * Receive a long value.
+     * @return Pair of the operation's success and the value. The value will not be valid with failed receive.
+     */
     fun receiveLong(): Pair<Boolean, Long>
 
+    /**
+     * Receive a string line.
+     * @return Pair of the operation's success and the value. The value will not be valid with failed receive.
+     */
     fun receiveLine(): Pair<Boolean, String>
 
+    /**
+     * Receive an item.
+     * @return Pair of the operation's success and the value. The value will not be valid with failed receive.
+     */
     fun receiveItem(): Pair<Boolean, Item?>
 
+    /**
+     * Receive a double array.
+     * @return Pair of the operation's success and the value. The value will not be valid with failed receive.
+     */
     fun receiveArray(): Pair<Boolean, DoubleArray>
 
+    /**
+     * Receive a pose.
+     * @return Pair of the operation's success and the value. The value will not be valid with failed receive.
+     */
     fun receivePose(): Pair<Boolean, RealMatrix>
 
     //</editor-fold>
